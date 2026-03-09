@@ -1,23 +1,27 @@
 package edu.cit.castillo.searchnsnip.controller;
 
 import edu.cit.castillo.searchnsnip.entity.User;
+import edu.cit.castillo.searchnsnip.security.JwtUtil;
 import edu.cit.castillo.searchnsnip.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // Adjust this for production security
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     // Create a new user
@@ -29,10 +33,26 @@ public class UserController {
 
     // Login a user
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        return userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build());
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        Optional<User> authenticatedUser = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+        if (authenticatedUser.isPresent()) {
+            User user = authenticatedUser.get();
+            String token = jwtUtil.generateToken(user.getEmail());
+            return ResponseEntity.ok(new LoginResponse(token));
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
+
+    public static class LoginResponse {
+        private String token;
+
+        public LoginResponse(String token) {
+            this.token = token;
+        }
+
+        public String getToken() { return token; }
+        public void setToken(String token) { this.token = token; }
     }
 
     public static class LoginRequest {

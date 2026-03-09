@@ -21,7 +21,9 @@ function Login() {
       });
 
       if (response.ok) {
-        // Here you would typically store the auth token or user data in context/state
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        window.alert('Logged in successfully');
         navigate('/dashboard'); // redirect back to home page on success
       } else {
         setError('Invalid email or password');
