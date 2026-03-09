@@ -1,0 +1,242 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.logo-icon {
+    background-color: #1a73e8;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    color: #5f6368;
+    font-size: 0.9rem;
+}
+
+.nav-links span {
+    cursor: pointer;
+}
+
+.nav-links span.active {
+    color: #1a73e8;
+    font-weight: bold;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.profile-pic {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #ddd;
+}
+
+.dashboard-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 350px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid #eaeaea;
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.sidebar-header p {
+    margin: 5px 0 15px 0;
+    color: #777;
+    font-size: 0.85rem;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e8eaed;
+    color: #3c4043;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.barber-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.barber-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.card-image {
+    width: 100%;
+    height: 150px;
+    background-color: #ddd;
+    position: relative;
+}
+
+.heart-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-info {
+    padding: 15px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.rating {
+    color: #fbbc04;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.location {
+    color: #777;
+    font-size: 0.85rem;
+    margin: 5px 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.price {
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.book-btn {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.map-area {
+    flex: 1;
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Map_of_New_York_City.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.map-card-popup {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-btn {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
