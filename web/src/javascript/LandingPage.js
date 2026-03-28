@@ -13,8 +13,8 @@ function LandingPage() {
     <main className="landing-page">
       <header className="top-nav">
         <div className="brand-lockup">
-          <span className="brand-mark">✂</span>
-          <span className="brand-text">SNIPNSKETCH</span>
+          <img src="/images/logo.png" alt="SnipNSketch Logo" className="brand-logo" width="58" height="68" />
+          <span className="brand-text">SNIPN'SKETCH</span>
         </div>
         <nav className="top-nav-links">
           <a href="#features">Features</a>
@@ -27,7 +27,6 @@ function LandingPage() {
 
       <section className="hero-section">
         <div className="hero-copy">
-          <p className="hero-badge">NOW AVAILABLE IN NEW YORK</p>
           <h1>
             Elevate Your <span>Grooming</span>
             <br />

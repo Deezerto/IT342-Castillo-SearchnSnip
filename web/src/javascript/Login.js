@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import '../css/Login.css';
 
 function Login() {
@@ -33,6 +34,30 @@ function Login() {
     }
   };
 
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const response = await fetch('http://localhost:8080/api/users/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: tokenResponse.access_token }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('token', data.token);
+          window.alert('Logged in successfully with Google');
+          navigate('/dashboard');
+        } else {
+          setError('Google login failed on the server.');
+        }
+      } catch (err) {
+        setError('An error occurred during Google login. Is the backend running?');
+      }
+    },
+    onError: () => setError('Google Login Failed'),
+  });
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -40,7 +65,7 @@ function Login() {
           <Link to="/" className="back-arrow">&larr;</Link>
           <span className="brand">SNIP'N SKETCH</span>
         </div>
-        <img src="/barber-logo.png" alt="Barber Logo" className="auth-logo" />
+        <img src="/images/logo.png" alt="Barber Logo" className="auth-logo" />
         <h2 className="auth-title">Welcome Back</h2>
         <p className="auth-desc">Find the best cuts near you. Please sign in to continue.</p>
 
@@ -75,7 +100,7 @@ function Login() {
           </div>
 
           <button className="auth-btn primary" type="submit">
-            Log In <span className="login-arrow">&#8627;</span>
+            Log In
           </button>
         </form>
 
@@ -83,8 +108,8 @@ function Login() {
           <span>OR CONTINUE WITH</span>
         </div>
 
-        <button className="auth-btn google" type="button">
-          <img src="/google-logo.png" alt="Google" className="google-icon" />
+        <button className="auth-btn google" type="button" onClick={() => loginWithGoogle()}>
+          <img src="images/google_logo.svg" alt="Google" className="google-icon" />
           Sign in with Google
         </button>
 
