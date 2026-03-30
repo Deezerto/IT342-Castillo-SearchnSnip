@@ -1,8 +1,71 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 import '../css/Dashboard.css';
+
+const mapContainerStyle = {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0
+};
+
+const defaultCenter = {
+    lat: 10.3157, // Example: Cebu City coordinates
+    lng: 123.8854
+};
 
 const Dashboard = () => {
     const [activeFilter, setActiveFilter] = useState('Haircut');
+    const [displayName, setDisplayName] = useState('Loading...');
+    const navigate = useNavigate();
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+    });
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            navigate('/login', { replace: true });
+            return;
+        }
+
+        const loadCurrentUser = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/users/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('token');
+                    navigate('/login', { replace: true });
+                    return;
+                }
+
+                if (!response.ok) {
+                    setDisplayName('User');
+                    return;
+                }
+
+                const user = await response.json();
+                const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+                setDisplayName(fullName || user.email || 'User');
+            } catch (error) {
+                setDisplayName('User');
+            }
+        };
+
+        loadCurrentUser();
+    }, [navigate]);
 
     const barbers = [
         {
@@ -36,25 +99,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <header className="dashboard-header">
-                <div className="logo-section">
-                    <span className="logo-icon">&#x2702;</span>
-                    SNIPNSKETCH
-                </div>
-                <div className="nav-links">
-                    <span className="active">Home</span>
-                    <span>Favorites</span>
-                    <span>Profile</span>
-                </div>
-                <div className="profile-section">
-                    <div>
-                        <strong>ALEX JOHNSON</strong>
-                        <br />
-                        <span style={{ fontSize: '0.7rem', color: '#777' }}>Premium Member</span>
-                    </div>
-                    <img src="https://via.placeholder.com/35" alt="Profile" className="profile-pic" />
-                </div>
-            </header>
+            <Navbar displayName={displayName} activePage='home' />
 
             <div className="dashboard-content">
                 <div className="sidebar">
@@ -118,8 +163,23 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="map-area">
-                    <div className="map-card-popup">
+                <div className="map-area" style={{ position: 'relative' }}>
+                    {isLoaded ? (
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            center={defaultCenter}
+                            zoom={13}
+                            options={{ disableDefaultUI: true }} // Disables default Google Maps buttons so your custom ones work
+                        >
+                            {/* You will add <Marker /> components here later */}
+                        </GoogleMap>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', position: 'absolute', background: '#f0f0f0' }}>
+                            Loading Map...
+                        </div>
+                    )}
+
+                    <div className="map-card-popup" style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 10 }}>
                         <div className="popup-header">
                             <strong>Selected Location</strong>
                             <span style={{ cursor: 'pointer', color: '#777' }}>&#x2715;</span>
@@ -135,7 +195,7 @@ const Dashboard = () => {
                         <button className="popup-btn">View Full Details</button>
                     </div>
 
-                    <div style={{ position: 'absolute', bottom: '20px', right: '20px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>+</button>
                         <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>-</button>
                     </div>
@@ -146,3 +206,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

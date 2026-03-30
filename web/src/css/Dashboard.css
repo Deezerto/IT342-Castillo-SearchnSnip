@@ -6,60 +6,6 @@
     background-color: #f8f9fa;
 }
 
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: white;
-    border-bottom: 1px solid #eaeaea;
-}
-
-.logo-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.logo-icon {
-    background-color: #1a73e8;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-.nav-links {
-    display: flex;
-    gap: 20px;
-    color: #5f6368;
-    font-size: 0.9rem;
-}
-
-.nav-links span {
-    cursor: pointer;
-}
-
-.nav-links span.active {
-    color: #1a73e8;
-    font-weight: bold;
-}
-
-.profile-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-}
-
-.profile-pic {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background-color: #ddd;
-}
-
 .dashboard-content {
     display: flex;
     flex: 1;
@@ -240,3 +186,4 @@
     cursor: pointer;
     font-weight: bold;
 }
+

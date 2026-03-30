@@ -10,6 +10,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -113,6 +114,50 @@ public class UserController {
         public void setEmail(String email) { this.email = email; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
+    }
+
+    public static class CurrentUserResponse {
+        private Long userId;
+        private String email;
+        private String firstName;
+        private String lastName;
+
+        public CurrentUserResponse(Long userId, String email, String firstName, String lastName) {
+            this.userId = userId;
+            this.email = email;
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public Long getUserId() { return userId; }
+        public String getEmail() { return email; }
+        public String getFirstName() { return firstName; }
+        public String getLastName() { return lastName; }
+    }
+
+    // Get currently authenticated user
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String email = authentication.getName();
+        Optional<User> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOpt.get();
+        CurrentUserResponse response = new CurrentUserResponse(
+                user.getUserId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     // Get all users

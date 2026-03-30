@@ -6,6 +6,7 @@ import LandingPage from './javascript/LandingPage';
 import Login from './javascript/Login';
 import Register from './javascript/Register';
 import Dashboard from './javascript/Dashboard';
+import Profile from './javascript/Profile';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -13,6 +14,17 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
   return children;
+};
+
+const PlaceholderPage = ({ title }) => {
+  return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', fontFamily: 'Arial, sans-serif', background: '#f5f7fb' }}>
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{ marginBottom: '0.5rem' }}>{title}</h2>
+        <p style={{ margin: 0, color: '#667085' }}>This page is coming soon.</p>
+      </div>
+    </div>
+  );
 };
 
 function App() {
@@ -26,6 +38,16 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <PlaceholderPage title="Settings" />
             </ProtectedRoute>
           } />
         </Routes>

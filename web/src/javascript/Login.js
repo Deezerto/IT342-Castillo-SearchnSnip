@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import '../css/Login.css';
 
 function Login() {
@@ -34,29 +34,26 @@ function Login() {
     }
   };
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const response = await fetch('http://localhost:8080/api/users/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tokenResponse.access_token }),
-        });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/users/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem('token', data.token);
-          window.alert('Logged in successfully with Google');
-          navigate('/dashboard');
-        } else {
-          setError('Google login failed on the server.');
-        }
-      } catch (err) {
-        setError('An error occurred during Google login. Is the backend running?');
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        window.alert('Logged in successfully with Google');
+        navigate('/dashboard');
+      } else {
+        setError('Google login failed on the server.');
       }
-    },
-    onError: () => setError('Google Login Failed'),
-  });
+    } catch (err) {
+      setError('An error occurred during Google login. Is the backend running?');
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -108,10 +105,12 @@ function Login() {
           <span>OR CONTINUE WITH</span>
         </div>
 
-        <button className="auth-btn google" type="button" onClick={() => loginWithGoogle()}>
-          <img src="images/google_logo.svg" alt="Google" className="google-icon" />
-          Sign in with Google
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google Login Failed')}
+          />
+        </div>
 
         <div className="auth-footer">
           Don't have an account? <Link to="/register" className="register-link">Register</Link>
