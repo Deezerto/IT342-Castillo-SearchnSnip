@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import '../css/Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -45,7 +50,6 @@ function Login() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        window.alert('Logged in successfully with Google');
         navigate('/dashboard');
       } else {
         setError('Google login failed on the server.');
@@ -60,40 +64,50 @@ function Login() {
       <div className="auth-card">
         <div className="auth-header">
           <Link to="/" className="back-arrow">&larr;</Link>
-          <span className="brand">SNIP'N SKETCH</span>
+          <span className="brand">SEARCHN'SNIP</span>
         </div>
         <img src="/images/logo.png" alt="Barber Logo" className="auth-logo" />
-        <h2 className="auth-title">Welcome Back</h2>
+        <h3 className="auth-title">Welcome Back</h3>
         <p className="auth-desc">Find the best cuts near you. Please sign in to continue.</p>
 
         <form className="auth-form" onSubmit={handleLogin}>
           {error && <p style={{ color: 'red', fontSize: '0.9rem', margin: 0 }}>{error}</p>}
           <label>Email Address</label>
           <div className="input-group">
-            <span className="input-icon">&#9993;</span>
+            <span className="input-icon" style={{ display: "flex", alignItems: "center" }}><EmailIcon fontSize="small" /></span>
             <input 
               type="email" 
-              placeholder="john@example.com" 
+              placeholder="Email Address" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              maxLength={30}
               required 
             />
           </div>
 
           <div className="auth-row">
             <label>Password</label>
-            <a href="#" className="forgot-link">Forgot Password?</a>
           </div>
           <div className="input-group">
-            <span className="input-icon">&#128274;</span>
+            <span className="input-icon" style={{ display: "flex", alignItems: "center" }}><LockIcon fontSize="small" /></span>
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               placeholder="Password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              maxLength={30}
               required 
             />
-            <span className="input-icon eye">&#128065;</span>
+            <span 
+              className="input-icon eye" 
+              style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+            </span>
+          </div>
+          <div style={{ textAlign: "right", marginTop: "0.25rem", marginBottom: "1rem" }}>
+            <a href="#" className="forgot-link">Forgot Password?</a>
           </div>
 
           <button className="auth-btn primary" type="submit">

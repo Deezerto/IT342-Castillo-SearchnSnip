@@ -537,3 +537,42 @@
     padding: 38px 14px;
   }
 }
+
+/* Fade-in animation for headings and paragraphs */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-page section h1,
+.landing-page section h2,
+.landing-page section h3,
+.landing-page section h4,
+.landing-page section h5,
+.landing-page section h6,
+.landing-page section p,
+.landing-page section ul,
+.landing-page section li,
+.landing-page section button {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.landing-page .fade-in-visible {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+/* Button hover expansion effect */
+.landing-page button {
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.landing-page button:hover {
+  transform: scale(1.05); /* Exapand outward */
+}

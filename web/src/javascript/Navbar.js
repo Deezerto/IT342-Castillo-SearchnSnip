@@ -39,9 +39,9 @@ const Navbar = ({ displayName, activePage }) => {
 
     return (
         <header className="dashboard-header">
-            <div className="logo-section" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-                <span className="logo-icon">&#x2702;</span>
-                SNIPNSKETCH
+            <div className="logo-section" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <img src="/images/logo.png" alt="SnipNSketch Logo" style={{ height: '30px', marginRight: '10px', borderRadius: '5px' }} />
+                <span>SNIPNSKETCH</span>
             </div>
             <div className="nav-links">
                 <span className={activePage === 'home' ? 'active' : ''} onClick={() => navigate('/dashboard')}>Home</span>
@@ -76,6 +76,10 @@ const Navbar = ({ displayName, activePage }) => {
                         <button type="button" className="profile-menu-item" onClick={() => navigateFromProfileMenu('/profile')}>
                             <span className="profile-menu-icon">&#128100;</span>
                             <span>See your Profile</span>
+                        </button>
+                        <button type="button" className="profile-menu-item" onClick={() => navigateFromProfileMenu('/my-barbershop')}>
+                            <span className="profile-menu-icon">&#127986;</span>
+                            <span>My Barbershop</span>
                         </button>
                         <button type="button" className="profile-menu-item" onClick={() => navigateFromProfileMenu('/settings')}>
                             <span className="profile-menu-icon">&#9881;</span>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import '../css/Register.css';
 
 function Register() {
@@ -10,6 +12,8 @@ function Register() {
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -58,10 +62,10 @@ function Register() {
       <div className="auth-card">
         <div className="auth-header">
           <Link to="/login" className="back-arrow">&larr;</Link>
-          <span className="brand">Register</span>
+          <span className="brand">SEARCHN'SNIP</span>
         </div>
-
-        <h2 className="auth-title blue">Create Account</h2>
+        <img src="/images/logo.png" alt="Barber Logo" className="auth-logo" />
+        <h2 className="auth-title" style={{ color: 'black' }}>Create Account</h2>
 
         <form className="auth-form" onSubmit={handleRegister}>
           {error && <p style={{ color: 'red', fontSize: '0.9rem', margin: 0 }}>{error}</p>}
@@ -72,6 +76,7 @@ function Register() {
             placeholder="Enter your email" 
             className="plain-input" 
             onChange={handleChange}
+            maxLength={30}
             required 
           />
 
@@ -84,6 +89,7 @@ function Register() {
                 placeholder="First" 
                 className="plain-input"
                 onChange={handleChange}
+                maxLength={35}
                 required 
               />
             </div>
@@ -95,6 +101,7 @@ function Register() {
                 placeholder="Last" 
                 className="plain-input" 
                 onChange={handleChange}
+                maxLength={30}
                 required 
               />
             </div>
@@ -103,25 +110,39 @@ function Register() {
           <label>Password</label>
           <div className="input-group">
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               name="password"
               placeholder="Create a password" 
               onChange={handleChange}
+              maxLength={30}
               required 
             />
-            <span className="input-icon eye">&#128065;</span>
+            <span 
+              className="input-icon eye" 
+              style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+            </span>
           </div>
 
           <label>Confirm Password</label>
           <div className="input-group">
             <input 
-              type="password" 
+              type={showConfirmPassword ? "text" : "password"} 
               name="confirmPassword"
               placeholder="Re-enter password" 
               onChange={handleChange}
+              maxLength={30}
               required 
             />
-            <span className="input-icon eye">&#128065;</span>
+            <span 
+              className="input-icon eye" 
+              style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+            </span>
           </div>
 
           <button className="auth-btn primary" type="submit">Submit</button>

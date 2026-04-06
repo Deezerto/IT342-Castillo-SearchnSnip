@@ -1,9 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/LandingPage.css';
 
 function LandingPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let delayCount = 0;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.animationDelay = `${delayCount * 0.15}s`;
+            entry.target.classList.add('fade-in-visible');
+            delayCount++;
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const elements = document.querySelectorAll(
+      '.landing-page section h1, .landing-page section h2, .landing-page section h3, .landing-page section h4, .landing-page section h5, .landing-page section h6, .landing-page section p, .landing-page section ul, .landing-page section li, .landing-page section button'
+    );
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+      observer.disconnect();
+    };
+  }, []);
 
   const handleGoToLogin = () => {
     navigate('/login');
@@ -14,7 +41,7 @@ function LandingPage() {
       <header className="top-nav">
         <div className="brand-lockup">
           <img src="/images/logo.png" alt="SnipNSketch Logo" className="brand-logo" width="58" height="68" />
-          <span className="brand-text">SNIPN'SKETCH</span>
+          <span className="brand-text">SEARCHN'SNIP</span>
         </div>
         <nav className="top-nav-links">
           <a href="#features">Features</a>
@@ -33,7 +60,7 @@ function LandingPage() {
             Experience
           </h1>
           <p className="hero-subtext">
-            The modern way to find professional barbers, book appointments in seconds,
+            The modern way to find barbershops and book barber appointments in seconds,
             and ensure you always look your absolute best.
           </p>
           <div className="hero-actions">
@@ -41,10 +68,8 @@ function LandingPage() {
             <button type="button" className="secondary-btn">Learn More</button>
           </div>
         </div>
-        <div className="hero-visual" aria-label="Barber shop showcase image" role="img">
-          <div className="hero-photo-card">
-            <div className="chair-scene" />
-          </div>
+        <div className="hero-visual">
+          <img src="/images/hero_image.jpg" alt="Barber shop showcase" className="hero-image" style={{ maxWidth: '100%', height: 'auto', borderRadius: '16px' }} />
         </div>
       </section>
 
@@ -163,12 +188,14 @@ function LandingPage() {
 
       <footer className="site-footer">
         <div>
-          <h3>BARBERLINK</h3>
+          <div className="brand-lockup">
+            <img src="/images/logo.png" alt="SnipNSketch Logo" className="brand-logo" width="58" height="68" />
+            <h3>SEARCHN'SNIP</h3>
+          </div>
           <p>Providing a premium platform for grooming professionals and clients to connect, schedule, and celebrate the art of the haircut.</p>
         </div>
         <div>
           <h4>PLATFORM</h4>
-          <p>Find a Barber</p>
           <p>Join as a Shop</p>
           <p>Services</p>
           <p>Mobile App</p>

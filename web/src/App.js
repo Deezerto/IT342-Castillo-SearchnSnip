@@ -7,6 +7,9 @@ import Login from './javascript/Login';
 import Register from './javascript/Register';
 import Dashboard from './javascript/Dashboard';
 import Profile from './javascript/Profile';
+import MyBarbershop from './javascript/MyBarbershop';
+import BarbershopUpload from './javascript/BarbershopUpload';
+import Booking from './javascript/Booking';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -45,9 +48,24 @@ function App() {
               <Profile />
             </ProtectedRoute>
           } />
+          <Route path="/my-barbershop" element={
+            <ProtectedRoute>
+              <MyBarbershop />
+            </ProtectedRoute>
+          } />
+          <Route path="/barbershop-upload" element={
+            <ProtectedRoute>
+              <BarbershopUpload />
+            </ProtectedRoute>
+          } />
           <Route path="/settings" element={
             <ProtectedRoute>
               <PlaceholderPage title="Settings" />
+            </ProtectedRoute>
+          } />
+          <Route path="/booking" element={
+            <ProtectedRoute>
+              <Booking />
             </ProtectedRoute>
           } />
         </Routes>

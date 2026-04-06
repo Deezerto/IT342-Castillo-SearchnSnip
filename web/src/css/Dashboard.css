@@ -37,31 +37,23 @@
 
 .search-bar {
     width: 100%;
-    padding: 10px;
+    padding: 10px 10px 10px 36px;
     border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+.search-input-wrapper {
+    position: relative;
     margin-bottom: 15px;
 }
 
-.filter-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.filter-btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 20px;
-    background-color: #e8eaed;
-    color: #3c4043;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-.filter-btn.active {
-    background-color: #1a73e8;
-    color: white;
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: #777;
 }
 
 .barber-cards {
@@ -75,6 +67,14 @@
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.barber-card.selected {
+    border-color: #1a73e8;
+    box-shadow: 0 3px 8px rgba(26,115,232,0.2);
 }
 
 .card-image {
@@ -106,7 +106,7 @@
 
 .card-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 5px;
 }
@@ -185,5 +185,159 @@
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.empty-state {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.location-error-banner {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    background: rgba(229, 57, 53, 0.9);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    max-width: 260px;
+}
+
+.details-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    padding: 18px;
+}
+
+.details-modal {
+    width: min(860px, 100%);
+    background: #ffffff;
+    border: 2px solid #1f1f1f;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.details-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: #ff4b3e;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.details-image-stage {
+    position: relative;
+    width: 100%;
+    height: min(48vw, 320px);
+    min-height: 220px;
+    background: #101010;
+}
+
+.details-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.details-image-hotspot {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.details-image-hotspot-left {
+    left: 0;
+}
+
+.details-image-hotspot-right {
+    right: 0;
+}
+
+.details-image-hotspot-left:hover {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0));
+}
+
+.details-image-hotspot-right:hover {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0));
+}
+
+.details-content {
+    padding: 26px;
+}
+
+.details-content h2 {
+    margin: 0;
+    text-align: center;
+    font-size: 1.9rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.details-content p {
+    margin: 18px 0 0 0;
+    color: #444;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.details-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.details-book-btn {
+    border: none;
+    border-radius: 10px;
+    background: #1a73e8;
+    color: #fff;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.details-book-btn:hover {
+    background: #165fc0;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 700px) {
+    .details-content {
+        padding: 18px;
+    }
+
+    .details-content h2 {
+        font-size: 1.35rem;
+    }
+
+    .details-content p {
+        font-size: 0.92rem;
+    }
 }
 
