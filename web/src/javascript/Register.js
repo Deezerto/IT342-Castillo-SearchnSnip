@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import '../css/Register.css';
 
 function Register() {
@@ -15,6 +16,7 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -48,7 +50,7 @@ function Register() {
       });
 
       if (response.ok) {
-        navigate('/login'); // Successfully registered, take them to login
+        setShowConfirmation(true);
       } else {
         setError('Failed to create account. Email might already be in use.');
       }
@@ -56,6 +58,24 @@ function Register() {
       setError('An error occurred during registration. Is the backend running?');
     }
   };
+
+  if (showConfirmation) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card" style={{ textAlign: 'center', padding: '50px 20px' }}>
+          <CheckCircleOutlineIcon style={{ fontSize: 80, color: 'green', marginBottom: '20px' }} />
+          <h2 style={{ color: 'black', marginBottom: '20px' }}>Account Created!</h2>
+          <p style={{ color: 'gray', marginBottom: '30px' }}>Your account has been successfully created. Welcome to Searchn'Snip!</p>
+          <button 
+            className="auth-btn primary" 
+            onClick={() => navigate('/dashboard')}
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">

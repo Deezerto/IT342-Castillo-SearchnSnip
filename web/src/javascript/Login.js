@@ -29,7 +29,6 @@ function Login() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        window.alert('Logged in successfully');
         navigate('/dashboard'); // redirect back to home page on success
       } else {
         setError('Invalid email or password');

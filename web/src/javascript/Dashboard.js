@@ -33,6 +33,7 @@ const Dashboard = () => {
     const [selectedBarberId, setSelectedBarberId] = useState(null);
     const [detailsModalShop, setDetailsModalShop] = useState(null);
     const [activeDetailImageIndex, setActiveDetailImageIndex] = useState(0);
+    const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
     const navigate = useNavigate();
 
     const { isLoaded } = useJsApiLoader({
@@ -225,28 +226,94 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <Navbar displayName={displayName} activePage='home' />
+            <Navbar 
+                displayName={displayName} 
+                activePage='home' 
+                searchTerm={searchTerm} 
+                onSearchChange={setSearchTerm} 
+            />
 
-            <div className="dashboard-content">
-                <div className="sidebar">
-                    <div className="sidebar-header">
-                        <h2>Nearby Barbers</h2>
-                        <p>
-                            {shopsLoading
-                                ? 'Loading barbershops in your area...'
-                                : `Showing ${filteredBarbers.length} shop${filteredBarbers.length === 1 ? '' : 's'}`}
-                        </p>
-                        <div className="search-input-wrapper">
-                            <span className="search-icon" aria-hidden="true">&#x1F50D;</span>
-                            <input
-                                type="text"
-                                placeholder="Search by barbershop name or address..."
-                                className="search-bar"
-                                value={searchTerm}
-                                onChange={(event) => setSearchTerm(event.target.value)}
-                            />
+            {viewMode === 'list' ? (
+                <div style={{ flex: 1, backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ background: '#fff', borderBottom: '1px solid #eaeaea', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2 style={{ margin: 0, fontWeight: 600, fontSize: '1.4rem' }}>Available Barbershops</h2>
+                        <span 
+                            style={{ color: '#2b52ff', cursor: 'pointer', fontWeight: 500 }}
+                            onClick={() => setViewMode('map')}
+                        >
+                            &lt;&lt; View map
+                        </span>
+                    </div>
+                    
+                    <div style={{ padding: '30px 40px', flex: 1, overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600 }}>Near you:</h3>
+                            <span style={{ color: '#2b52ff', cursor: 'pointer', fontSize: '0.9rem' }}>View more &gt;&gt;</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                            {filteredBarbers.slice(0, 3).map(barber => (
+                                <div key={barber.id} className="barber-card" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', cursor: 'pointer' }} onClick={() => openDetailsModal(barber)}>
+                                    <div style={{ height: '180px', backgroundImage: `url(${barber.image})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♡</div>
+                                        {barber.name.includes("Classic") && <div style={{ position: 'absolute', bottom: '10px', left: '10px', background: '#ff3b5c', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>FEATURED</div>}
+                                    </div>
+                                    <div style={{ padding: '15px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                            <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{barber.name}</h4>
+                                            <span style={{ color: '#ff9800', fontWeight: 'bold', fontSize: '0.9rem' }}>&#9733; 4.8</span>
+                                        </div>
+                                        <div style={{ color: '#777', fontSize: '0.85rem', marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
+                                            <span style={{ marginRight: '5px' }}>&#9582; 1.2 miles away •</span> {barber.address.substring(0, 15)}...
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: 'bold', color: '#2b52ff' }}>$35+</span>
+                                            <button style={{ background: '#eef2ff', color: '#2b52ff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer' }}>Book Now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600 }}>Barbershops you've previously visited:</h3>
+                            <span style={{ color: '#2b52ff', cursor: 'pointer', fontSize: '0.9rem' }}>View your history &gt;&gt;</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                            {[1, 2, 3].map(item => (
+                                <div key={`visited-${item}`} className="barber-card" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', cursor: 'pointer' }}>
+                                    <div style={{ height: '180px', background: '#e0e0e0', position: 'relative' }}>
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♡</div>
+                                    </div>
+                                    <div style={{ padding: '15px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                            <h4 style={{ margin: 0, fontSize: '1.1rem' }}>Previously Visited {item}</h4>
+                                            <span style={{ color: '#ff9800', fontWeight: 'bold', fontSize: '0.9rem' }}>&#9733; 4.7</span>
+                                        </div>
+                                        <div style={{ color: '#777', fontSize: '0.85rem', marginBottom: '15px' }}>
+                                            Placeholder details...
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: 'bold', color: '#2b52ff' }}>$25+</span>
+                                            <button style={{ background: '#eef2ff', color: '#2b52ff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer' }}>Book Now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
+                </div>
+            ) : (
+                <div className="dashboard-content">
+                    <div className="sidebar" style={{ minWidth: '420px', maxWidth: '420px' }}>
+                        <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Nearby Barbers</h2>
+                            <span 
+                                style={{ color: '#2b52ff', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
+                                onClick={() => setViewMode('list')}
+                            >
+                                View More Barbershops&gt;&gt;
+                            </span>
+                        </div>
 
                     <div className="barber-cards">
                         {shopsError && <div className="empty-state">{shopsError}</div>}
@@ -299,7 +366,16 @@ const Dashboard = () => {
                             zoom={14}
                             options={{ disableDefaultUI: true }} // Disables default Google Maps buttons so your custom ones work
                         >
-                            {userLocation && <Marker position={userLocation} />}
+                            {userLocation && (
+                                <Marker 
+                                    position={userLocation} 
+                                    icon={{
+                                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#4285F4" fill-opacity="0.3"/><circle cx="18" cy="18" r="9" fill="white"/><circle cx="18" cy="18" r="7" fill="#4285F4"/></svg>'),
+                                        anchor: new window.google.maps.Point(18, 18),
+                                    }}
+                                    zIndex={1000}
+                                />
+                            )}
 
                             {barbers
                                 .filter((barber) => typeof barber.latitude === 'number' && typeof barber.longitude === 'number')
@@ -353,23 +429,24 @@ const Dashboard = () => {
                         <div className="location-error-banner">{locationError}</div>
                     )}
 
-                    <div style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <button 
-                            onClick={() => {
-                                if (userLocation) {
-                                    setMapCenter(userLocation);
-                                }
-                            }}
-                            style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
-                            title="Go to my location"
-                        >
-                            📍
-                        </button>
-                        <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>+</button>
-                        <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>-</button>
+                        <div style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                            <button 
+                                onClick={() => {
+                                    if (userLocation) {
+                                        setMapCenter(userLocation);
+                                    }
+                                }}
+                                style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
+                                title="Go to my location"
+                            >
+                                📍
+                            </button>
+                            <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>+</button>
+                            <button style={{ width: '40px', height: '40px', background: 'white', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>-</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {detailsModalShop && (
                 <div className="details-modal-overlay" onClick={closeDetailsModal}>
