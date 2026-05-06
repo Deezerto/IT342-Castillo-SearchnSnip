@@ -145,7 +145,6 @@ const Dashboard = () => {
                 }));
 
                 setBarbers(normalizedShops);
-                setSelectedBarberId((prev) => prev ?? (normalizedShops[0]?.id ?? null));
             } catch (error) {
                 setBarbers([]);
                 setShopsError('Could not load barbershops. Please try again later.');
@@ -233,8 +232,15 @@ const Dashboard = () => {
                 onSearchChange={setSearchTerm} 
             />
 
-            {viewMode === 'list' ? (
-                <div style={{ flex: 1, backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
+                {/* List View */}
+                <div style={{ 
+                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                    backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column',
+                    transition: 'transform 0.4s ease-in-out',
+                    transform: viewMode === 'list' ? 'translateX(0)' : 'translateX(-100%)',
+                    zIndex: viewMode === 'list' ? 2 : 1
+                }}>
                     <div style={{ background: '#fff', borderBottom: '1px solid #eaeaea', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h2 style={{ margin: 0, fontWeight: 600, fontSize: '1.4rem' }}>Available Barbershops</h2>
                         <span 
@@ -302,8 +308,17 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-            ) : (
-                <div className="dashboard-content">
+
+                {/* Map View */}
+                <div 
+                    className="dashboard-content"
+                    style={{ 
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        transition: 'transform 0.4s ease-in-out',
+                        transform: viewMode === 'map' ? 'translateX(0)' : 'translateX(100%)',
+                        zIndex: viewMode === 'map' ? 2 : 1
+                    }}
+                >
                     <div className="sidebar" style={{ minWidth: '420px', maxWidth: '420px' }}>
                         <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Nearby Barbers</h2>
@@ -446,7 +461,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
 
             {detailsModalShop && (
                 <div className="details-modal-overlay" onClick={closeDetailsModal}>
