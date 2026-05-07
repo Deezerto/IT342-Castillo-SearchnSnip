@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import '../css/Profile.css';
+import Navbar from '../../javascript/Navbar';
+import './Profile.css';
 
 const Profile = () => {
     const [displayName, setDisplayName] = useState('Loading...');

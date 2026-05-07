@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import edu.cit.castillo.searchnsnip.auth.LoginActivity
+import edu.cit.castillo.searchnsnip.barbershop.DashboardActivity
 import edu.cit.castillo.searchnsnip.network.SessionManager
 
 class SplashActivity : AppCompatActivity() {

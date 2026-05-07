@@ -1,10 +1,10 @@
-package edu.cit.castillo.searchnsnip.service;
+package edu.cit.castillo.searchnsnip.booking;
 
 import edu.cit.castillo.searchnsnip.entity.Booking;
 import edu.cit.castillo.searchnsnip.entity.Service;
 import edu.cit.castillo.searchnsnip.entity.User;
-import edu.cit.castillo.searchnsnip.repository.BookingRepository;
 import edu.cit.castillo.searchnsnip.repository.ServiceRepository;
+import edu.cit.castillo.searchnsnip.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

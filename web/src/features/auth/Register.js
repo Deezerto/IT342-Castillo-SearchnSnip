@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import '../css/Register.css';
+import './Register.css';
 
 function Register() {
   const [formData, setFormData] = useState({

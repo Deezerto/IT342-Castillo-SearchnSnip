@@ -1,4 +1,4 @@
-package edu.cit.castillo.searchnsnip.security;
+package edu.cit.castillo.searchnsnip.auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

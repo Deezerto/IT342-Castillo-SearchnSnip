@@ -1,4 +1,4 @@
-package edu.cit.castillo.searchnsnip.repository;
+package edu.cit.castillo.searchnsnip.booking;
 
 import edu.cit.castillo.searchnsnip.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import '../css/Booking.css';
+import Navbar from '../../javascript/Navbar';
+import './Booking.css';
 
 const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 

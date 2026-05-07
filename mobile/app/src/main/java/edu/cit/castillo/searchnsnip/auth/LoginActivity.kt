@@ -1,4 +1,4 @@
-package edu.cit.castillo.searchnsnip
+package edu.cit.castillo.searchnsnip.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import edu.cit.castillo.searchnsnip.barbershop.DashboardActivity
+import edu.cit.castillo.searchnsnip.R
 import edu.cit.castillo.searchnsnip.network.ApiClient
 import edu.cit.castillo.searchnsnip.network.CurrentUserResponse
 import edu.cit.castillo.searchnsnip.network.LoginRequest

@@ -1,18 +1,23 @@
-package edu.cit.castillo.searchnsnip.controller;
+package edu.cit.castillo.searchnsnip.barbershop;
 
 import edu.cit.castillo.searchnsnip.entity.Barbershop;
 import edu.cit.castillo.searchnsnip.entity.Booking;
 import edu.cit.castillo.searchnsnip.entity.Service;
 import edu.cit.castillo.searchnsnip.entity.User;
-import edu.cit.castillo.searchnsnip.repository.BarbershopRepository;
-import edu.cit.castillo.searchnsnip.repository.BookingRepository;
+import edu.cit.castillo.searchnsnip.booking.BookingRepository;
 import edu.cit.castillo.searchnsnip.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
@@ -415,11 +420,12 @@ public class BarbershopController {
     }
 
     public static class MyBarbershopOverview {
-        private final boolean hasBarbershop;
         private final Long shopId;
-        private final String shopName;
-        private final String shopAddress;
-        private final String shopDescription;
+        private final String name;
+        private final String location;
+        private final String about;
+        private final String contactInfo;
+        private final List<String> showcaseImages;
         private final double totalEarnings;
         private final double projectedRevenue;
         private final double lastMonthRevenue;
@@ -427,14 +433,15 @@ public class BarbershopController {
         private final int totalClientBase;
         private final int newClientsThisWeek;
         private final int activeReservations;
-        private final List<ReservationSummary> activeReservationItems;
+        private final List<ReservationSummary> activeReservationsList;
 
-        public MyBarbershopOverview(
-                boolean hasBarbershop,
+        private MyBarbershopOverview(
                 Long shopId,
-                String shopName,
-                String shopAddress,
-                String shopDescription,
+                String name,
+                String location,
+                String about,
+                String contactInfo,
+                List<String> showcaseImages,
                 double totalEarnings,
                 double projectedRevenue,
                 double lastMonthRevenue,
@@ -442,13 +449,14 @@ public class BarbershopController {
                 int totalClientBase,
                 int newClientsThisWeek,
                 int activeReservations,
-                List<ReservationSummary> activeReservationItems
+                List<ReservationSummary> activeReservationsList
         ) {
-            this.hasBarbershop = hasBarbershop;
             this.shopId = shopId;
-            this.shopName = shopName;
-            this.shopAddress = shopAddress;
-            this.shopDescription = shopDescription;
+            this.name = name;
+            this.location = location;
+            this.about = about;
+            this.contactInfo = contactInfo;
+            this.showcaseImages = showcaseImages;
             this.totalEarnings = totalEarnings;
             this.projectedRevenue = projectedRevenue;
             this.lastMonthRevenue = lastMonthRevenue;
@@ -456,16 +464,17 @@ public class BarbershopController {
             this.totalClientBase = totalClientBase;
             this.newClientsThisWeek = newClientsThisWeek;
             this.activeReservations = activeReservations;
-            this.activeReservationItems = activeReservationItems;
+            this.activeReservationsList = activeReservationsList;
         }
 
         public static MyBarbershopOverview noBarbershop() {
             return new MyBarbershopOverview(
-                    false,
                     null,
                     null,
                     null,
                     null,
+                    null,
+                    List.of(),
                     0.0,
                     0.0,
                     0.0,
@@ -489,11 +498,12 @@ public class BarbershopController {
                 List<ReservationSummary> activeReservationItems
         ) {
             return new MyBarbershopOverview(
-                    true,
                     shop.getShopId(),
                     shop.getName(),
                     shop.getAddress(),
                     shop.getDescription(),
+                    shop.getContactInfo(),
+                    shop.getShowcaseImages(),
                     totalEarnings,
                     projectedRevenue,
                     lastMonthRevenue,
@@ -505,24 +515,28 @@ public class BarbershopController {
             );
         }
 
-        public boolean isHasBarbershop() {
-            return hasBarbershop;
-        }
-
         public Long getShopId() {
             return shopId;
         }
 
-        public String getShopName() {
-            return shopName;
+        public String getName() {
+            return name;
         }
 
-        public String getShopAddress() {
-            return shopAddress;
+        public String getLocation() {
+            return location;
         }
 
-        public String getShopDescription() {
-            return shopDescription;
+        public String getAbout() {
+            return about;
+        }
+
+        public String getContactInfo() {
+            return contactInfo;
+        }
+
+        public List<String> getShowcaseImages() {
+            return showcaseImages;
         }
 
         public double getTotalEarnings() {
@@ -553,8 +567,8 @@ public class BarbershopController {
             return activeReservations;
         }
 
-        public List<ReservationSummary> getActiveReservationItems() {
-            return activeReservationItems;
+        public List<ReservationSummary> getActiveReservationsList() {
+            return activeReservationsList;
         }
     }
 }

@@ -1,4 +1,4 @@
-package edu.cit.castillo.searchnsnip.security;
+package edu.cit.castillo.searchnsnip.auth.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -26,17 +26,17 @@
         </activity>
         
         <activity
-            android:name=".LoginActivity"
+            android:name=".auth.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Searchnsnip" />
             
         <activity
-            android:name=".RegisterActivity"
+            android:name=".auth.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.Searchnsnip" />
 
         <activity
-            android:name=".DashboardActivity"
+            android:name=".barbershop.DashboardActivity"
             android:exported="false"
             android:theme="@style/Theme.Searchnsnip" />
     </application>

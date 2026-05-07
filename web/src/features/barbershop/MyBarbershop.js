@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import '../css/MyBarbershop.css';
+import Navbar from '../../javascript/Navbar';
+import './MyBarbershop.css';
 
 const reservationImageFallback = [
     'https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=1000&q=80',

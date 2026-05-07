@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import '../css/Dashboard.css';
+import Navbar from '../../javascript/Navbar';
+import './Dashboard.css';
 
 const mapContainerStyle = {
     width: '100%',
@@ -512,5 +512,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
