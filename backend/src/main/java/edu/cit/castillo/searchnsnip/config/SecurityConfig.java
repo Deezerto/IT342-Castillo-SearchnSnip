@@ -1,6 +1,6 @@
 package edu.cit.castillo.searchnsnip.config;
 
-import edu.cit.castillo.searchnsnip.security.JwtAuthenticationFilter;
+import edu.cit.castillo.searchnsnip.auth.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

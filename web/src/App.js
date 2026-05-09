@@ -3,13 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './css/App.css';
 import LandingPage from './javascript/LandingPage';
-import Login from './javascript/Login';
-import Register from './javascript/Register';
-import Dashboard from './javascript/Dashboard';
-import Profile from './javascript/Profile';
-import MyBarbershop from './javascript/MyBarbershop';
+import Login from './features/auth/Login';
+import Register from './features/auth/Register';
+import Dashboard from './features/barbershop/Dashboard';
+import Profile from './features/profile/Profile';
+import MyBarbershop from './features/barbershop/MyBarbershop';
 import BarbershopUpload from './javascript/BarbershopUpload';
-import Booking from './javascript/Booking';
+import Booking from './features/booking/Booking';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
