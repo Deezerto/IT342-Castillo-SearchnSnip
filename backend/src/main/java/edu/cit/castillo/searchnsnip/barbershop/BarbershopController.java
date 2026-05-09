@@ -114,8 +114,14 @@ public class BarbershopController {
         double lastMonthRevenue = totalEarnings * 0.88;
         double projectedRevenue = totalEarnings * 1.18;
 
+        // Force initialization of showcaseImages by copying to a new list
+        List<String> images = shop.getShowcaseImages() == null 
+            ? List.of() 
+            : shop.getShowcaseImages().stream().filter(Objects::nonNull).toList();
+
         return ResponseEntity.ok(MyBarbershopOverview.withBarbershop(
                 shop,
+                images,
                 totalEarnings,
                 projectedRevenue,
                 lastMonthRevenue,
@@ -488,6 +494,7 @@ public class BarbershopController {
 
         public static MyBarbershopOverview withBarbershop(
                 Barbershop shop,
+                List<String> initializedShowcaseImages,
                 double totalEarnings,
                 double projectedRevenue,
                 double lastMonthRevenue,
@@ -503,7 +510,7 @@ public class BarbershopController {
                     shop.getAddress(),
                     shop.getDescription(),
                     shop.getContactInfo(),
-                    shop.getShowcaseImages(),
+                    initializedShowcaseImages,
                     totalEarnings,
                     projectedRevenue,
                     lastMonthRevenue,

@@ -134,10 +134,10 @@ const MyBarbershop = () => {
         loadOverview();
     }, [navigate]);
 
-    const hasBarbershop = overview?.hasBarbershop === true;
-    const shopDisplayName = (overview?.shopName || 'My Barbershop').toUpperCase();
-    const activeReservationItems = Array.isArray(overview?.activeReservationItems)
-        ? overview.activeReservationItems
+    const hasBarbershop = overview?.shopId != null;
+    const shopDisplayName = (overview?.name || 'My Barbershop').toUpperCase();
+    const activeReservationItems = Array.isArray(overview?.activeReservationsList)
+        ? overview.activeReservationsList
         : [];
 
     return (
@@ -189,19 +189,19 @@ const MyBarbershop = () => {
                             <div className="myb-revenue-main">
                                 <span className="myb-label">Monthly Revenue</span>
                                 <div className="myb-revenue-total-row">
-                                    <strong>{formatWholeCurrency(placeholderMetrics.monthlyRevenue)}</strong>
-                                    <span className="myb-growth-pill">+{placeholderMetrics.growthPercent}%</span>
+                                    <strong>{formatWholeCurrency(overview.totalEarnings || 0)}</strong>
+                                    <span className="myb-growth-pill">+{overview.growthPercent || 0}%</span>
                                 </div>
                             </div>
 
                             <div className="myb-revenue-splits">
                                 <div>
                                     <span className="myb-sub-label">Projected</span>
-                                    <strong>{formatWholeCurrency(placeholderMetrics.projectedRevenue)}</strong>
+                                    <strong>{formatWholeCurrency(overview.projectedRevenue || 0)}</strong>
                                 </div>
                                 <div>
                                     <span className="myb-sub-label">Last Month</span>
-                                    <strong>{formatWholeCurrency(placeholderMetrics.lastMonthRevenue)}</strong>
+                                    <strong>{formatWholeCurrency(overview.lastMonthRevenue || 0)}</strong>
                                 </div>
                             </div>
                         </section>
@@ -210,8 +210,8 @@ const MyBarbershop = () => {
                             <div>
                                 <span className="myb-label">Total Client Base</span>
                                 <div className="myb-client-row">
-                                    <strong>{formatWholeNumber(placeholderMetrics.totalClientBase)}</strong>
-                                    <span className="myb-client-week">+{formatWholeNumber(placeholderMetrics.newClientsThisWeek)} New This Week</span>
+                                    <strong>{formatWholeNumber(overview.totalClientBase || 0)}</strong>
+                                    <span className="myb-client-week">+{formatWholeNumber(overview.newClientsThisWeek || 0)} New This Week</span>
                                 </div>
                             </div>
                             <div className="myb-avatars">
@@ -242,12 +242,12 @@ const MyBarbershop = () => {
                                                     <span className="myb-active-chip">{(item.status || 'Active').toUpperCase()}</span>
                                                 </div>
 
-                                                <p>{formatReservationDate(item.appointmentDate) || overview.shopAddress || 'Address unavailable'}</p>
+                                                <p>{formatReservationDate(item.appointmentDate) || overview.location || 'Address unavailable'}</p>
 
                                                 <div className="myb-reservation-actions">
                                                     <button
                                                         type="button"
-                                                        onClick={() => navigate('/booking', { state: { shop: { id: overview.shopId, name: overview.shopName } } })}
+                                                        onClick={() => navigate('/booking', { state: { shop: { id: overview.shopId, name: overview.name } } })}
                                                     >
                                                         See Details
                                                     </button>

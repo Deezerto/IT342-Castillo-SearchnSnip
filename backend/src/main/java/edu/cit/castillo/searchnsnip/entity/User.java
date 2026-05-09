@@ -2,6 +2,7 @@ package edu.cit.castillo.searchnsnip.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "users") // "user" is a reserved keyword in PostgreSQL, so we use "users"
@@ -16,6 +17,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "first_name", nullable = false)
