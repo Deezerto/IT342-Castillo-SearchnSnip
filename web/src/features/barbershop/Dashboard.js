@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../javascript/Navbar';
 import './Dashboard.css';
@@ -15,7 +15,7 @@ const mapContainerStyle = {
 const libraries = ['places'];
 
 const defaultCenter = {
-    lat: 10.3157, // Example: Cebu City coordinates
+    lat: 10.3157,
     lng: 123.8854
 };
 
@@ -225,17 +225,17 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container">
-            <Navbar 
-                displayName={displayName} 
-                activePage='home' 
-                searchTerm={searchTerm} 
-                onSearchChange={setSearchTerm} 
+            <Navbar
+                displayName={displayName}
+                activePage='home'
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
             />
 
             <div style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
                 {/* List View */}
-                <div style={{ 
-                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                <div style={{
+                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                     backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column',
                     transition: 'transform 0.4s ease-in-out',
                     transform: viewMode === 'list' ? 'translateX(0)' : 'translateX(-100%)',
@@ -243,14 +243,14 @@ const Dashboard = () => {
                 }}>
                     <div style={{ background: '#fff', borderBottom: '1px solid #eaeaea', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h2 style={{ margin: 0, fontWeight: 600, fontSize: '1.4rem' }}>Available Barbershops</h2>
-                        <span 
+                        <span
                             style={{ color: '#2b52ff', cursor: 'pointer', fontWeight: 500 }}
                             onClick={() => setViewMode('map')}
                         >
                             &lt;&lt; View map
                         </span>
                     </div>
-                    
+
                     <div style={{ padding: '30px 40px', flex: 1, overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600 }}>Near you:</h3>
@@ -310,9 +310,9 @@ const Dashboard = () => {
                 </div>
 
                 {/* Map View */}
-                <div 
+                <div
                     className="dashboard-content"
-                    style={{ 
+                    style={{
                         position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                         transition: 'transform 0.4s ease-in-out',
                         transform: viewMode === 'map' ? 'translateX(0)' : 'translateX(100%)',
@@ -322,7 +322,7 @@ const Dashboard = () => {
                     <div className="sidebar" style={{ minWidth: '420px', maxWidth: '420px' }}>
                         <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>Nearby Barbers</h2>
-                            <span 
+                            <span
                                 style={{ color: '#2b52ff', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
                                 onClick={() => setViewMode('list')}
                             >
@@ -330,122 +330,113 @@ const Dashboard = () => {
                             </span>
                         </div>
 
-                    <div className="barber-cards">
-                        {shopsError && <div className="empty-state">{shopsError}</div>}
+                        <div className="barber-cards">
+                            {shopsError && <div className="empty-state">{shopsError}</div>}
 
-                        {!shopsError && shopsLoading && <div className="empty-state">Loading barbershops...</div>}
+                            {!shopsError && shopsLoading && <div className="empty-state">Loading barbershops...</div>}
 
-                        {!shopsError && !shopsLoading && filteredBarbers.length === 0 && (
-                            <div className="empty-state">No barbershops found for your search.</div>
-                        )}
-
-                        {!shopsError && !shopsLoading && filteredBarbers.map((barber) => (
-                            <div
-                                key={barber.id}
-                                className={`barber-card ${selectedBarberId === barber.id ? 'selected' : ''}`}
-                                onClick={() => handleSelectBarber(barber)}
-                            >
-                                <div
-                                    className="card-image"
-                                    style={{ backgroundImage: `url(${barber.image})`, backgroundSize: 'cover' }}
-                                />
-                                <div className="card-info">
-                                    <div className="card-header">
-                                        <h3>{barber.name}</h3>
-                                    </div>
-                                    <div className="location">{barber.address}</div>
-                                    <div className="card-footer">
-                                        <span className="price">{barber.contactInfo || 'Contact info unavailable'}</span>
-                                        <button
-                                            className="book-btn"
-                                            type="button"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                openDetailsModal(barber);
-                                            }}
-                                        >
-                                            View Details
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="map-area" style={{ position: 'relative' }}>
-                    {isLoaded ? (
-                        <GoogleMap
-                            mapContainerStyle={mapContainerStyle}
-                            center={mapCenter}
-                            zoom={14}
-                            options={{ disableDefaultUI: true }} // Disables default Google Maps buttons so your custom ones work
-                        >
-                            {userLocation && (
-                                <Marker 
-                                    position={userLocation} 
-                                    icon={{
-                                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#4285F4" fill-opacity="0.3"/><circle cx="18" cy="18" r="9" fill="white"/><circle cx="18" cy="18" r="7" fill="#4285F4"/></svg>'),
-                                        anchor: new window.google.maps.Point(18, 18),
-                                    }}
-                                    zIndex={1000}
-                                />
+                            {!shopsError && !shopsLoading && filteredBarbers.length === 0 && (
+                                <div className="empty-state">No barbershops found for your search.</div>
                             )}
 
-                            {barbers
-                                .filter((barber) => typeof barber.latitude === 'number' && typeof barber.longitude === 'number')
-                                .map((barber) => (
-                                    <Marker
-                                        key={`shop-marker-${barber.id}`}
-                                        position={{ lat: barber.latitude, lng: barber.longitude }}
-                                        onClick={() => handleSelectBarber(barber)}
-                                    />
-                                ))}
-                        </GoogleMap>
-                    ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', position: 'absolute', background: '#f0f0f0' }}>
-                            Loading Map...
-                        </div>
-                    )}
-
-                    {selectedBarber && (
-                        <div className="map-card-popup" style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 10 }}>
-                            <div className="popup-header">
-                                <strong>Selected Location</strong>
-                                <span
-                                    style={{ cursor: 'pointer', color: '#777' }}
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() => setSelectedBarberId(null)}
-                                    onKeyDown={(event) => {
-                                        if (event.key === 'Enter' || event.key === ' ') {
-                                            setSelectedBarberId(null);
-                                        }
-                                    }}
+                            {!shopsError && !shopsLoading && filteredBarbers.map((barber) => (
+                                <div
+                                    key={barber.id}
+                                    className={`barber-card ${selectedBarberId === barber.id ? 'selected' : ''}`}
+                                    onClick={() => handleSelectBarber(barber)}
                                 >
-                                    &#x2715;
-                                </span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '10px', margin: '10px 0' }}>
-                                <img src={selectedBarber.image} alt={selectedBarber.name} style={{ width: '50px', height: '50px', borderRadius: '5px' }} />
-                                <div>
-                                    <strong>{selectedBarber.name}</strong>
-                                    <br />
-                                    <span style={{ color: '#777', fontSize: '0.8rem' }}>{selectedBarber.address}</span>
+                                    <div
+                                        className="card-image"
+                                        style={{ backgroundImage: `url(${barber.image})`, backgroundSize: 'cover' }}
+                                    />
+                                    <div className="card-info">
+                                        <div className="card-header">
+                                            <h3>{barber.name}</h3>
+                                        </div>
+                                        <div className="location">{barber.address}</div>
+                                        <div className="card-footer">
+                                            <button
+                                                className="book-btn"
+                                                type="button"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    proceedToBooking(barber);
+                                                }}
+                                            >
+                                                Book Now
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <button className="popup-btn" type="button" onClick={() => openDetailsModal(selectedBarber)}>
-                                View Full Details
-                            </button>
+                            ))}
                         </div>
-                    )}
+                    </div>
 
-                    {locationError && (
-                        <div className="location-error-banner">{locationError}</div>
-                    )}
+                    <div className="map-area" style={{ position: 'relative' }}>
+                        {isLoaded ? (
+                            <GoogleMap
+                                mapContainerStyle={mapContainerStyle}
+                                center={mapCenter}
+                                zoom={14}
+                                options={{ disableDefaultUI: true }} // Disables default Google Maps buttons so your custom ones work
+                            >
+                                {userLocation && (
+                                    <Marker
+                                        position={userLocation}
+                                        icon={{
+                                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#4285F4" fill-opacity="0.3"/><circle cx="18" cy="18" r="9" fill="white"/><circle cx="18" cy="18" r="7" fill="#4285F4"/></svg>'),
+                                            anchor: new window.google.maps.Point(18, 18),
+                                        }}
+                                        zIndex={1000}
+                                    />
+                                )}
+
+                                {barbers
+                                    .filter((barber) => typeof barber.latitude === 'number' && typeof barber.longitude === 'number')
+                                    .map((barber) => (
+                                        <Marker
+                                            key={`shop-marker-${barber.id}`}
+                                            position={{ lat: barber.latitude, lng: barber.longitude }}
+                                            onClick={() => handleSelectBarber(barber)}
+                                        />
+                                    ))}
+                            {selectedBarber && (
+                                <InfoWindow
+                                    position={{ lat: selectedBarber.latitude, lng: selectedBarber.longitude }}
+                                    onCloseClick={() => setSelectedBarberId(null)}
+                                    options={{ pixelOffset: new window.google.maps.Size(0, -35) }}
+                                >
+                                    <div className="map-card-popup">
+                                        <div className="popup-header">
+                                            <strong>Selected Location</strong>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '10px', margin: '10px 0' }}>
+                                            <img src={selectedBarber.image} alt={selectedBarber.name} style={{ width: '50px', height: '50px', borderRadius: '5px' }} />
+                                            <div>
+                                                <strong>{selectedBarber.name}</strong>
+                                                <br />
+                                                <span style={{ color: '#777', fontSize: '0.8rem' }}>{selectedBarber.address}</span>
+                                            </div>
+                                        </div>
+                                        <button className="popup-btn" type="button" onClick={() => openDetailsModal(selectedBarber)}>
+                                            View Full Details
+                                        </button>
+                                    </div>
+                                </InfoWindow>
+                            )}
+                            </GoogleMap>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', position: 'absolute', background: '#f0f0f0' }}>
+                                Loading Map...
+                            </div>
+                        )}
+
+                        {locationError && (
+                            <div className="location-error-banner">{locationError}</div>
+                        )}
 
                         <div style={{ position: 'absolute', bottom: '20px', right: '20px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                            <button 
+                            <button
                                 onClick={() => {
                                     if (userLocation) {
                                         setMapCenter(userLocation);

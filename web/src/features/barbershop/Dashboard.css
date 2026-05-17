@@ -159,16 +159,13 @@
 }
 
 .map-card-popup {
-    position: absolute;
-    top: 50px;
-    left: 50px;
     background: white;
-    padding: 15px;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 220px;
 }
 
 .popup-header {

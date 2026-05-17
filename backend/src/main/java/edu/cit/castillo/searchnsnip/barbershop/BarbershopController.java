@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -189,6 +190,76 @@ public class BarbershopController {
 
         Barbershop savedBarbershop = barbershopRepository.save(barbershop);
         return ResponseEntity.ok(savedBarbershop);
+    }
+
+    @PutMapping("/{shopId}")
+    @Transactional
+    public ResponseEntity<?> updateBarbershop(@PathVariable Long shopId, @RequestBody Barbershop updatedShop, Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        String email = authentication.getName();
+        Optional<User> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User currentUser = userOpt.get();
+        Optional<Barbershop> existingShopOpt = barbershopRepository.findById(shopId);
+
+        if (existingShopOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Barbershop not found");
+        }
+
+        Barbershop existingShop = existingShopOpt.get();
+        if (!existingShop.getOwner().getUserId().equals(currentUser.getUserId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your barbershop");
+        }
+
+        existingShop.setAddress(updatedShop.getAddress());
+        existingShop.setLatitude(updatedShop.getLatitude());
+        existingShop.setLongitude(updatedShop.getLongitude());
+        
+        if (updatedShop.getShowcaseImages() != null) {
+            existingShop.setShowcaseImages(updatedShop.getShowcaseImages());
+        }
+
+        if (updatedShop.getServices() != null) {
+            java.util.Map<Long, Service> existingServicesMap = new java.util.HashMap<>();
+            if (existingShop.getServices() != null) {
+                for (Service s : existingShop.getServices()) {
+                    existingServicesMap.put(s.getServiceId(), s);
+                }
+            }
+            
+            java.util.List<Service> updatedServices = new java.util.ArrayList<>();
+            for (Service service : updatedShop.getServices()) {
+                if (service.getServiceId() != null && existingServicesMap.containsKey(service.getServiceId())) {
+                    Service existingService = existingServicesMap.get(service.getServiceId());
+                    existingService.setName(service.getName());
+                    existingService.setDescription(service.getDescription());
+                    existingService.setPrice(service.getPrice());
+                    existingService.setDuration(service.getDuration());
+                    existingService.setPhoto(service.getPhoto());
+                    updatedServices.add(existingService);
+                } else {
+                    service.setServiceId(null);
+                    service.setBarbershop(existingShop);
+                    updatedServices.add(service);
+                }
+            }
+            if (existingShop.getServices() != null) {
+                existingShop.getServices().clear();
+                existingShop.getServices().addAll(updatedServices);
+            } else {
+                existingShop.setServices(updatedServices);
+            }
+        }
+
+        barbershopRepository.save(existingShop);
+        return ResponseEntity.ok(java.util.Map.of("message", "Barbershop updated successfully", "shopId", shopId));
     }
 
     public static class BarbershopSummary {
@@ -429,6 +500,8 @@ public class BarbershopController {
         private final Long shopId;
         private final String name;
         private final String location;
+        private final Double latitude;
+        private final Double longitude;
         private final String about;
         private final String contactInfo;
         private final List<String> showcaseImages;
@@ -445,6 +518,8 @@ public class BarbershopController {
                 Long shopId,
                 String name,
                 String location,
+                Double latitude,
+                Double longitude,
                 String about,
                 String contactInfo,
                 List<String> showcaseImages,
@@ -460,6 +535,8 @@ public class BarbershopController {
             this.shopId = shopId;
             this.name = name;
             this.location = location;
+            this.latitude = latitude;
+            this.longitude = longitude;
             this.about = about;
             this.contactInfo = contactInfo;
             this.showcaseImages = showcaseImages;
@@ -475,6 +552,8 @@ public class BarbershopController {
 
         public static MyBarbershopOverview noBarbershop() {
             return new MyBarbershopOverview(
+                    null,
+                    null,
                     null,
                     null,
                     null,
@@ -508,6 +587,8 @@ public class BarbershopController {
                     shop.getShopId(),
                     shop.getName(),
                     shop.getAddress(),
+                    shop.getLatitude(),
+                    shop.getLongitude(),
                     shop.getDescription(),
                     shop.getContactInfo(),
                     initializedShowcaseImages,
@@ -532,6 +613,14 @@ public class BarbershopController {
 
         public String getLocation() {
             return location;
+        }
+
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        public Double getLongitude() {
+            return longitude;
         }
 
         public String getAbout() {

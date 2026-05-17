@@ -36,7 +36,7 @@
     text-transform: uppercase;
     letter-spacing: 2.4px;
     color: #ca2144;
-    font-weight: 800;
+    font-weight: normal;
 }
 
 .myb-welcome-wrap h2 {
@@ -44,7 +44,128 @@
     font-size: 3rem;
     color: #071a53;
     line-height: 1.05;
-    font-weight: 900;
+    font-weight: normal;
+}
+
+/* KPI Dashboard Styles */
+.myb-kpi-dashboard {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.myb-kpi-column-left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+}
+
+.myb-kpi-column-right {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.myb-kpi-card {
+    border: 1px solid #4a5568;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.myb-kpi-chart-card {
+    flex: 1;
+}
+
+.myb-kpi-header {
+    background: #2196F3;
+    color: #f3eded;
+    font-weight: normal;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #4a5568;
+}
+
+.myb-kpi-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    flex: 1;
+}
+
+.myb-kpi-value {
+    font-size: 2.8rem;
+    font-weight: normal;
+    color: #000000;
+}
+
+.myb-kpi-chart-body {
+    display: block;
+    padding: 24px 40px;
+}
+
+.myb-bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    justify-content: center;
+    padding-left: 20px;
+}
+
+.myb-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.myb-bar-label {
+    width: 130px;
+    text-align: right;
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: normal;
+}
+
+.myb-bar-track {
+    flex: 1;
+    height: 28px;
+    position: relative;
+    border-left: 1px solid #a0aec0;
+    border-bottom: 1px solid #a0aec0;
+}
+
+.myb-bar-track::before {
+    content: '';
+    position: absolute;
+    left: 20%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.myb-bar-track::after {
+    content: '';
+    position: absolute;
+    left: 40%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.myb-bar-fill {
+    height: 100%;
+    background: #e4786a;
+    position: relative;
+    z-index: 2;
 }
 
 .myb-revenue-panel,
@@ -70,7 +191,7 @@
     font-size: 0.66rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    font-weight: 800;
+    font-weight: normal;
 }
 
 .myb-revenue-total-row {
@@ -93,7 +214,7 @@
     border-radius: 8px;
     padding: 5px 10px;
     font-size: 0.73rem;
-    font-weight: 800;
+    font-weight: normal;
 }
 
 .myb-revenue-splits {
@@ -109,7 +230,7 @@
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    font-weight: 800;
+    font-weight: normal;
 }
 
 .myb-revenue-splits strong {
@@ -146,7 +267,7 @@
 .myb-client-week {
     font-size: 0.67rem;
     color: #cc1c3f;
-    font-weight: 800;
+    font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -164,7 +285,7 @@
 
 .myb-avatars span {
     color: #08184f;
-    font-weight: 800;
+    font-weight: normal;
     font-size: 1.4rem;
 }
 
@@ -185,7 +306,7 @@
     text-transform: uppercase;
     font-size: 1.4rem;
     letter-spacing: 0.6px;
-    font-weight: 900;
+    font-weight: normal;
 }
 
 .myb-reservations-head button {
@@ -195,7 +316,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 0.66rem;
-    font-weight: 800;
+    font-weight: normal;
     cursor: pointer;
 }
 
@@ -204,7 +325,7 @@
     text-align: center;
     color: #56647d;
     font-size: 0.94rem;
-    font-weight: 700;
+    font-weight: normal;
 }
 
 .myb-reservations-grid {
@@ -242,7 +363,7 @@
     font-size: 1.5rem;
     line-height: 1.15;
     color: #051a52;
-    font-weight: 900;
+    font-weight: normal;
     text-transform: uppercase;
 }
 
@@ -252,7 +373,7 @@
     border-radius: 3px;
     padding: 2px 7px;
     font-size: 0.58rem;
-    font-weight: 800;
+    font-weight: normal;
     text-transform: uppercase;
 }
 
@@ -275,7 +396,7 @@
     text-transform: uppercase;
     font-size: 0.64rem;
     letter-spacing: 1px;
-    font-weight: 800;
+    font-weight: normal;
     padding: 10px 16px;
     cursor: pointer;
 }

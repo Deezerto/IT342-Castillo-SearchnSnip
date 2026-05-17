@@ -355,6 +355,16 @@ const Booking = () => {
         <div className="booking-page">
             <Navbar displayName={displayName} activePage="" />
 
+            <div className="booking-back-bar">
+                <button
+                    type="button"
+                    className="booking-back-btn"
+                    onClick={() => navigate('/dashboard')}
+                >
+                    ← Back to Dashboard
+                </button>
+            </div>
+
             <main className="booking-main">
                 <section className="booking-services-panel">
                     <header className="booking-services-header">

@@ -5,6 +5,13 @@
     padding: 10px 20px;
     background-color: white;
     border-bottom: 1px solid #eaeaea;
+    position: relative;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .logo-section {
@@ -23,14 +30,79 @@
 }
 
 .nav-links {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-50%);
     display: flex;
-    gap: 20px;
+    gap: 28px;
     color: #5f6368;
     font-size: 0.9rem;
+    align-items: stretch;
 }
 
-.nav-links span {
+.nav-links span.nav-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
     cursor: pointer;
+    color: #5f6368;
+    transition: color 0.2s ease;
+}
+
+/* Blue bottom-bar indicator */
+.nav-links span.nav-icon-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: #2196F3;
+    transition: width 0.2s ease;
+}
+
+.nav-links span.nav-icon-btn:hover {
+    color: #2196F3;
+}
+
+.nav-links span.nav-icon-btn:hover::after {
+    width: 100%;
+}
+
+.nav-links span.nav-icon-btn.active {
+    color: #2196F3;
+}
+
+.nav-links span.nav-icon-btn.active::after {
+    width: 100%;
+}
+
+.nav-tooltip {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 40;
+}
+
+.nav-icon-btn:hover .nav-tooltip {
+    opacity: 1;
 }
 
 .nav-links span.active {
@@ -47,6 +119,7 @@
 
 .profile-wrapper {
     position: relative;
+    margin-right: 30px;
 }
 
 .profile-trigger {

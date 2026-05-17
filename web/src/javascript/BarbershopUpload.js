@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from '@react-google-maps/api';
 import Navbar from './Navbar';
 import '../css/BarbershopUpload.css';
@@ -27,11 +27,57 @@ const BarbershopUpload = () => {
     const [showcaseImages, setShowcaseImages] = useState([]);
     
     const navigate = useNavigate();
+    const location = useLocation();
+    const shopData = location.state?.shopData;
+    const isEditMode = !!shopData;
+
     const autocompleteRef = useRef(null);
     const showcaseInputRef = useRef(null);
     const servicePhotoInputRef = useRef(null);
 
     const [services, setServices] = useState([]);
+
+    useEffect(() => {
+        if (shopData) {
+            setName(shopData.name || '');
+            setAddress(shopData.location || '');
+            if (shopData.latitude && shopData.longitude) {
+                setCoordinates({ lat: shopData.latitude, lng: shopData.longitude });
+            }
+            if (shopData.showcaseImages) {
+                setShowcaseImages(shopData.showcaseImages);
+            }
+
+            const fetchServices = async () => {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                try {
+                    const response = await fetch(`http://localhost:8080/api/shops/${shopData.shopId}/services`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const mappedServices = data.map(s => ({
+                            id: s.serviceId || Date.now() + Math.random(),
+                            name: s.name,
+                            duration: s.duration,
+                            price: s.price,
+                            description: s.description,
+                            photo: s.photo
+                        }));
+                        setServices(mappedServices);
+                    }
+                } catch (err) {
+                    console.error("Error fetching services", err);
+                }
+            };
+
+            fetchServices();
+        }
+    }, [shopData]);
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -174,6 +220,7 @@ const BarbershopUpload = () => {
             longitude: coordinates.lng,
             showcaseImages: showcaseImages,
             services: services.map(s => ({
+                serviceId: (typeof s.id === 'number' && s.id < 1000000000000) ? s.id : null,
                 name: s.name,
                 description: s.description,
                 price: s.price,
@@ -183,8 +230,10 @@ const BarbershopUpload = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/shops', {
-                method: 'POST',
+            const url = isEditMode ? `http://localhost:8080/api/shops/${shopData.shopId}` : 'http://localhost:8080/api/shops';
+            const method = isEditMode ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -193,11 +242,11 @@ const BarbershopUpload = () => {
             });
 
             if (response.ok) {
-                alert('Barbershop successfully established!');
+                alert(`Barbershop successfully ${isEditMode ? 'updated' : 'established'}!`);
                 navigate('/dashboard'); // or to another management page if you build one
             } else {
-                console.error("Failed to establish barbershop", await response.text());
-                alert('Failed to establish barbershop. Please try again.');
+                console.error(`Failed to ${isEditMode ? 'update' : 'establish'} barbershop`, await response.text());
+                alert(`Failed to ${isEditMode ? 'update' : 'establish'} barbershop. Please try again.`);
             }
         } catch (error) {
             console.error("Error connecting to server:", error);
@@ -211,8 +260,8 @@ const BarbershopUpload = () => {
             <div className="upload-content">
                 <div className="establish-container">
                     <div className="establish-header">
-                        <h1 style={{ color: '#000b2b', fontSize: '32px', marginBottom: '10px', textTransform: 'uppercase', fontWeight: '900' }}>ESTABLISH NEW BARBERSHOP</h1>
-                        <p style={{ color: '#6fa0b0', margin: 0, fontSize: '16px' }}>Define the identity and services of your premium grooming destination.</p>
+                        <h1 style={{ color: '#000b2b', fontSize: '32px', marginBottom: '10px', textTransform: 'uppercase', fontWeight: '900' }}>{isEditMode ? 'UPDATE BARBERSHOP' : 'ESTABLISH NEW BARBERSHOP'}</h1>
+                        <p style={{ color: '#6fa0b0', margin: 0, fontSize: '16px' }}>{isEditMode ? 'Manage the identity and services of your premium grooming destination.' : 'Define the identity and services of your premium grooming destination.'}</p>
                     </div>
                     <div className="establish-grid">
                         <div className="establish-main">
@@ -227,6 +276,8 @@ const BarbershopUpload = () => {
                                         placeholder="e.g. THE GILDED BLADE" 
                                         value={name} 
                                         onChange={(e) => setName(e.target.value)} 
+                                        disabled={isEditMode}
+                                        style={isEditMode ? { backgroundColor: '#f0f0f0', color: '#888', cursor: 'not-allowed' } : {}}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -301,7 +352,7 @@ const BarbershopUpload = () => {
                                 </div>
                             </div>
 
-                            <button type="button" className="action-btn primary-action" onClick={handleEstablishBarbershop}>ESTABLISH BARBERSHOP</button>
+                            <button type="button" className="action-btn primary-action" onClick={handleEstablishBarbershop}>{isEditMode ? 'UPDATE BARBERSHOP' : 'ESTABLISH BARBERSHOP'}</button>
                             <button type="button" className="action-btn secondary-action">SAVE AS DRAFT</button>
                             
                             <div className="disclaimer-box">

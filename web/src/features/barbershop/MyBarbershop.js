@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import Navbar from '../../javascript/Navbar';
 import './MyBarbershop.css';
 
@@ -176,8 +179,26 @@ const MyBarbershop = () => {
 
                 {!overviewLoading && !overviewError && hasBarbershop && (
                     <>
-                        <header className="myb-title-wrap">
-                            <h1>{shopDisplayName}</h1>
+                        <header className="myb-title-wrap" style={{ alignItems: 'center', gap: '16px' }}>
+                            <h1 style={{ margin: 0 }}>{shopDisplayName}</h1>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <IconButton 
+                                    color="primary" 
+                                    onClick={() => navigate('/barbershop-upload', { state: { shopData: overview } })} 
+                                    title="Edit Barbershop & Services"
+                                    sx={{ border: '1px solid #e0e0e0', backgroundColor: '#fff' }}
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                                <IconButton 
+                                    color="primary" 
+                                    onClick={() => navigate('/barbershop-upload', { state: { shopData: overview } })} 
+                                    title="Add New Service"
+                                    sx={{ border: '1px solid #e0e0e0', backgroundColor: '#fff' }}
+                                >
+                                    <AddIcon />
+                                </IconButton>
+                            </div>
                         </header>
 
                         <section className="myb-welcome-wrap">
@@ -185,37 +206,63 @@ const MyBarbershop = () => {
                             <h2>Welcome back, Master.</h2>
                         </section>
 
-                        <section className="myb-revenue-panel">
-                            <div className="myb-revenue-main">
-                                <span className="myb-label">Monthly Revenue</span>
-                                <div className="myb-revenue-total-row">
-                                    <strong>{formatWholeCurrency(overview.totalEarnings || 0)}</strong>
-                                    <span className="myb-growth-pill">+{overview.growthPercent || 0}%</span>
+                        <section className="myb-kpi-dashboard">
+                            <div className="myb-kpi-column-left">
+                                <div className="myb-kpi-card">
+                                    <div className="myb-kpi-header">Total revenue</div>
+                                    <div className="myb-kpi-body">
+                                        <span className="myb-kpi-value">$24,961</span>
+                                    </div>
+                                </div>
+                                <div className="myb-kpi-card">
+                                    <div className="myb-kpi-header">Total sales</div>
+                                    <div className="myb-kpi-body">
+                                        <span className="myb-kpi-value">23</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div className="myb-revenue-splits">
-                                <div>
-                                    <span className="myb-sub-label">Projected</span>
-                                    <strong>{formatWholeCurrency(overview.projectedRevenue || 0)}</strong>
-                                </div>
-                                <div>
-                                    <span className="myb-sub-label">Last Month</span>
-                                    <strong>{formatWholeCurrency(overview.lastMonthRevenue || 0)}</strong>
+                            <div className="myb-kpi-column-right">
+                                <div className="myb-kpi-card myb-kpi-chart-card">
+                                    <div className="myb-kpi-header">Most picked service</div>
+                                    <div className="myb-kpi-body myb-kpi-chart-body">
+                                        <div className="myb-bar-chart">
+                                            <div className="myb-bar-row">
+                                                <div className="myb-bar-label">Signature Haircut</div>
+                                                <div className="myb-bar-track">
+                                                    <div className="myb-bar-fill" style={{ width: '85%' }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="myb-bar-row">
+                                                <div className="myb-bar-label">Luxury Hot Shave</div>
+                                                <div className="myb-bar-track">
+                                                    <div className="myb-bar-fill" style={{ width: '65%' }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="myb-bar-row">
+                                                <div className="myb-bar-label">Beard Sculpting</div>
+                                                <div className="myb-bar-track">
+                                                    <div className="myb-bar-fill" style={{ width: '40%' }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="myb-bar-row">
+                                                <div className="myb-bar-label">Junior Cut</div>
+                                                <div className="myb-bar-track">
+                                                    <div className="myb-bar-fill" style={{ width: '25%' }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
 
-                        <section className="myb-client-panel">
-                            <div>
-                                <span className="myb-label">Total Client Base</span>
-                                <div className="myb-client-row">
-                                    <strong>{formatWholeNumber(overview.totalClientBase || 0)}</strong>
-                                    <span className="myb-client-week">+{formatWholeNumber(overview.newClientsThisWeek || 0)} New This Week</span>
-                                </div>
-                            </div>
-                            <div className="myb-avatars">
-                                <span>{activeReservationItems.length} Active</span>
+                        <section className="myb-kpi-card" style={{ marginBottom: '30px' }}>
+                            <div className="myb-kpi-header">Total Client Base</div>
+                            <div className="myb-kpi-body" style={{ flexDirection: 'column' }}>
+                                <span className="myb-kpi-value">{formatWholeNumber(overview.totalClientBase || 0)}</span>
+                                <span style={{ color: '#4a5568', marginTop: '10px', fontSize: '0.95rem', fontWeight: 'normal' }}>
+                                    +{formatWholeNumber(overview.newClientsThisWeek || 0)} New This Week &bull; {activeReservationItems.length} Active Reservations
+                                </span>
                             </div>
                         </section>
 

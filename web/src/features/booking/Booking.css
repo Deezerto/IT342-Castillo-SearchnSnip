@@ -3,6 +3,33 @@
     background: #f2f4f8;
 }
 
+.booking-back-bar {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 14px 24px 0;
+    box-sizing: border-box;
+}
+
+.booking-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.booking-back-btn:hover {
+    background: #eef2ff;
+    color: #1a73e8;
+}
+
 .booking-main {
     max-width: 1240px;
     margin: 0 auto;
