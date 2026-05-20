@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -23,14 +24,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
-            
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SNIPN'SKETCH"
-            android:textColor="#193B73"
-            android:textSize="20sp"
-            android:textStyle="bold" />
             
         <Space
             android:layout_width="0dp"
@@ -56,9 +49,18 @@
 
             <ImageView
                 android:id="@+id/logoLogin"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@mipmap/ic_launcher" />
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/web_logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Searchn'Snip"
+                android:textColor="#193B73"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp" />
 
             <TextView
                 android:id="@+id/welcomeTitle"
@@ -101,6 +103,8 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
                     android:background="#FAFAFA"
+                    android:drawableStart="@drawable/ic_email"
+                    android:drawablePadding="12dp"
                     android:hint="john@example.com"
                     android:inputType="textEmailAddress"
                     android:padding="12dp" />
@@ -133,6 +137,8 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="8dp"
                     android:background="#FAFAFA"
+                    android:drawableStart="@drawable/ic_lock"
+                    android:drawablePadding="12dp"
                     android:hint="••••••••"
                     android:inputType="textPassword"
                     android:padding="12dp" />
@@ -155,14 +161,25 @@
                     android:textColor="#999999"
                     android:textSize="12sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGoogle"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginTop="24dp"
-                    android:backgroundTint="#FFFFFF"
-                    android:textColor="#000000"
-                    android:text="Sign in with Google" />
+                    android:text="Sign in with Google"
+                    android:textAllCaps="false"
+                    android:textColor="#3C4043"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#FFFFFF"
+                    app:cornerRadius="4dp"
+                    app:elevation="2dp"
+                    app:icon="@drawable/ic_google"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp"
+                    app:iconTint="@null"
+                    app:strokeColor="#DADCE0"
+                    app:strokeWidth="1dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

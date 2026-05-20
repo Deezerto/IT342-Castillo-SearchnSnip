@@ -13,6 +13,12 @@ interface UserApiService {
     @POST("api/users/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
+    @POST("api/users/google")
+    fun googleLogin(@Body tokenPayload: Map<String, String>): Call<LoginResponse>
+
     @GET("api/users/me")
     fun getCurrentUser(@Header("Authorization") authorization: String): Call<CurrentUserResponse>
+
+    @GET("api/shops")
+    fun getBarbershops(): Call<List<BarbershopSummary>>
 }

@@ -1,6 +1,5 @@
 package edu.cit.castillo.searchnsnip.profile;
 
-import edu.cit.castillo.searchnsnip.auth.security.JwtAuthenticationFilter;
 import edu.cit.castillo.searchnsnip.auth.security.JwtUtil;
 import edu.cit.castillo.searchnsnip.entity.User;
 import edu.cit.castillo.searchnsnip.service.UserService;
@@ -18,8 +17,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 
 import java.util.Optional;
 
@@ -66,7 +63,7 @@ class ProfileControllerTest {
         when(userService.findByEmail("alex@example.com")).thenReturn(Optional.of(user));
 
         mockMvc.perform(get("/api/users/me")
-                        .with(user("alex@example.com")))
+                .with(user("alex@example.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("alex@example.com"))
                 .andExpect(jsonPath("$.firstName").value("Alex"))

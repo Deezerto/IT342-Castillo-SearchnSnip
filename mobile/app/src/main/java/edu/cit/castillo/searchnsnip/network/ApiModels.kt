@@ -22,3 +22,14 @@ data class CurrentUserResponse(
     val firstName: String,
     val lastName: String
 )
+
+data class BarbershopSummary(
+    val shopId: Long,
+    val name: String,
+    val description: String?,
+    val address: String,
+    val latitude: Double,
+    val longitude: Double,
+    val contactInfo: String?,
+    val showcaseImages: List<String>
+)

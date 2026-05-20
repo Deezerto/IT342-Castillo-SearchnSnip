@@ -1,32 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EAF2FF">
 
-    <View
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_dashboard_map" />
+        android:layout_above="@+id/bottomNavigation" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
-        android:text="Main Dashboard Map"
-        android:textColor="#1F2A37"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+    <!-- Title removed as requested -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="52dp"
-        android:layout_marginEnd="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="10dp"
         android:background="@drawable/bg_dashboard_search"
         android:elevation="3dp"
         android:gravity="center_vertical"
@@ -57,85 +51,60 @@
             android:textSize="14sp" />
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
+            android:id="@+id/btnProfileMenu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_profile"
             android:tint="#8A95A6" />
     </LinearLayout>
 
+    <!-- Map Controls above the bottom sheet -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|center_vertical"
-        android:layout_marginStart="16dp"
+        android:layout_above="@+id/bottomSheet"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btnMapAction1"
+            android:id="@+id/btnZoomIn"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:background="@drawable/bg_dashboard_circle_button"
-            android:contentDescription="Map Action"
+            android:contentDescription="Zoom In"
             android:padding="10dp"
-            android:src="@android:drawable/ic_menu_compass"
-            android:tint="#2E7FF7" />
+            android:src="@drawable/ic_zoom_in" />
 
         <ImageButton
-            android:id="@+id/btnMapAction2"
+            android:id="@+id/btnZoomOut"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_dashboard_circle_button"
-            android:contentDescription="Map Action"
+            android:contentDescription="Zoom Out"
             android:padding="10dp"
-            android:src="@android:drawable/ic_menu_mylocation"
-            android:tint="#2E7FF7" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|center_vertical"
-        android:layout_marginEnd="16dp"
-        android:orientation="vertical">
+            android:src="@drawable/ic_zoom_out" />
 
         <ImageButton
             android:id="@+id/btnCenterMap"
             android:layout_width="46dp"
             android:layout_height="46dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_dashboard_circle_button"
             android:contentDescription="Center Map"
             android:padding="10dp"
             android:src="@android:drawable/ic_menu_mylocation"
             android:tint="#2E7FF7" />
-
-        <ImageButton
-            android:id="@+id/btnMapLayers"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_dashboard_circle_button"
-            android:contentDescription="Map Layers"
-            android:padding="10dp"
-            android:src="@android:drawable/ic_menu_mapmode"
-            android:tint="#2E7FF7" />
-
-        <ImageButton
-            android:id="@+id/btnLogout"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_dashboard_circle_button"
-            android:contentDescription="Logout"
-            android:padding="10dp"
-            android:src="@android:drawable/ic_lock_power_off"
-            android:tint="#E53935" />
     </LinearLayout>
 
+    <!-- Bottom Sheet -->
     <LinearLayout
+        android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_above="@+id/bottomNavigation"
         android:background="@drawable/bg_dashboard_sheet"
         android:orientation="vertical"
         android:paddingStart="18dp"
@@ -235,4 +204,14 @@
         </LinearLayout>
     </LinearLayout>
 
-</FrameLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#FFFFFF"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:menu="@menu/bottom_nav_menu" />
+
+</RelativeLayout>
