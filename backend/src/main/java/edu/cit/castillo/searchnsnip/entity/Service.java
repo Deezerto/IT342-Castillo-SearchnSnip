@@ -32,6 +32,9 @@ public class Service {
     @Column(columnDefinition = "TEXT")
     private String photo;
 
+    @Column
+    private String category;
+
     public Service() {}
 
     public Long getServiceId() { return serviceId; }
@@ -54,4 +57,7 @@ public class Service {
 
     public String getPhoto() { return photo; }
     public void setPhoto(String photo) { this.photo = photo; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

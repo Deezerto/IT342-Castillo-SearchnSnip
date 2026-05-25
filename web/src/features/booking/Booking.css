@@ -270,6 +270,12 @@
     color: #fff;
 }
 
+.booking-day-btn:disabled {
+    color: #c9cdd4;
+    cursor: not-allowed;
+    background: transparent;
+}
+
 .booking-selected-services {
     display: flex;
     flex-direction: column;

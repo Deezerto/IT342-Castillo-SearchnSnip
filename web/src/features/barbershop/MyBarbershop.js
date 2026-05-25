@@ -56,6 +56,7 @@ const formatReservationDate = (rawDate) => {
 
 const MyBarbershop = () => {
     const [displayName, setDisplayName] = useState('Loading...');
+    const [firstName, setFirstName] = useState('Master');
     const [overview, setOverview] = useState(null);
     const [overviewLoading, setOverviewLoading] = useState(true);
     const [overviewError, setOverviewError] = useState(null);
@@ -93,8 +94,10 @@ const MyBarbershop = () => {
                 const user = await response.json();
                 const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
                 setDisplayName(fullName || user.email || 'User');
+                setFirstName(user.firstName || 'Master');
             } catch (error) {
                 setDisplayName('User');
+                setFirstName('Master');
             }
         };
 
@@ -203,7 +206,7 @@ const MyBarbershop = () => {
 
                         <section className="myb-welcome-wrap">
                             <p>My Barbershop</p>
-                            <h2>Welcome back, Master.</h2>
+                            <h2>Welcome back, {firstName}.</h2>
                         </section>
 
                         <section className="myb-kpi-dashboard">
@@ -211,7 +214,7 @@ const MyBarbershop = () => {
                                 <div className="myb-kpi-card">
                                     <div className="myb-kpi-header">Total revenue</div>
                                     <div className="myb-kpi-body">
-                                        <span className="myb-kpi-value">$24,961</span>
+                                        <span className="myb-kpi-value">₱24,961</span>
                                     </div>
                                 </div>
                                 <div className="myb-kpi-card">

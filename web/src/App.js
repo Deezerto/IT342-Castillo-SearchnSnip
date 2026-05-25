@@ -6,6 +6,7 @@ import LandingPage from './javascript/LandingPage';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import Dashboard from './features/barbershop/Dashboard';
+import Favorites from './features/barbershop/Favorites';
 import Profile from './features/profile/Profile';
 import MyBarbershop from './features/barbershop/MyBarbershop';
 import BarbershopUpload from './javascript/BarbershopUpload';
@@ -41,6 +42,11 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/favorites" element={
+            <ProtectedRoute>
+              <Favorites />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={

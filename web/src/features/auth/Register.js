@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { GoogleLogin } from '@react-oauth/google';
 import './Register.css';
 
 function Register() {
@@ -30,6 +31,16 @@ function Register() {
     e.preventDefault();
     setError(null);
 
+    const passwordVal = formData.password;
+    const hasMinLength = passwordVal.length >= 8;
+    const hasNumber = /\d/.test(passwordVal);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(passwordVal);
+    
+    if (!hasMinLength || !hasNumber || !hasSpecialChar) {
+      setError('Please ensure your password meets all strength requirements.');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -50,12 +61,46 @@ function Register() {
       });
 
       if (response.ok) {
+        // Auto-login after successful registration
+        try {
+          const loginResponse = await fetch('http://localhost:8080/api/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: formData.email, password: formData.password }),
+          });
+          if (loginResponse.ok) {
+            const loginData = await loginResponse.json();
+            localStorage.setItem('token', loginData.token);
+          }
+        } catch (loginErr) {
+          // Silently fail — user can still log in manually from the confirmation screen
+        }
         setShowConfirmation(true);
       } else {
         setError('Failed to create account. Email might already be in use.');
       }
     } catch (err) {
       setError('An error occurred during registration. Is the backend running?');
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/users/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+      } else {
+        setError('Google registration failed on the server.');
+      }
+    } catch (err) {
+      setError('An error occurred during Google registration. Is the backend running?');
     }
   };
 
@@ -76,6 +121,19 @@ function Register() {
       </div>
     );
   }
+
+  const passwordVal = formData.password;
+  const hasMinLength = passwordVal.length >= 8;
+  const hasNumber = /\d/.test(passwordVal);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(passwordVal);
+
+  const strengthScore = [hasMinLength, hasNumber, hasSpecialChar].filter(Boolean).length;
+  const progressPercent = passwordVal.length > 0 ? (strengthScore / 3) * 100 : 0;
+  
+  const getProgressColor = () => {
+    if (strengthScore <= 2) return '#ffa500'; // orange
+    return '#4caf50'; // green
+  };
 
   return (
     <div className="auth-container">
@@ -146,6 +204,17 @@ function Register() {
             </span>
           </div>
 
+          <div style={{ marginTop: '5px', marginBottom: '15px' }}>
+            <div style={{ height: '8px', width: '100%', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
+              <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: getProgressColor(), transition: 'width 0.3s ease, background-color 0.3s ease' }}></div>
+            </div>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0, fontSize: '0.85rem', textAlign: 'left' }}>
+              <li style={{ color: hasMinLength ? '#008000' : 'red', marginBottom: '5px', transition: 'color 0.3s' }}>At least 8 characters</li>
+              <li style={{ color: hasNumber ? '#008000' : 'red', marginBottom: '5px', transition: 'color 0.3s' }}>Contains a number</li>
+              <li style={{ color: hasSpecialChar ? '#008000' : 'red', transition: 'color 0.3s' }}>Contains a special character</li>
+            </ul>
+          </div>
+
           <label>Confirm Password</label>
           <div className="input-group">
             <input 
@@ -167,6 +236,17 @@ function Register() {
 
           <button className="auth-btn primary" type="submit">Submit</button>
         </form>
+
+        <div className="divider">
+          <span>OR CONTINUE WITH</span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google Registration Failed')}
+          />
+        </div>
 
         <div className="auth-footer">
           Already have an account? <Link to="/login" className="login-link">Log In</Link>

@@ -12,6 +12,7 @@ import '../css/Navbar.css';
 
 const Navbar = ({ displayName, activePage, searchTerm, onSearchChange }) => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const profileMenuRef = useRef(null);
     const navigate = useNavigate();
 
@@ -35,14 +36,18 @@ const Navbar = ({ displayName, activePage, searchTerm, onSearchChange }) => {
     };
 
     const handleLogout = () => {
-        const confirmed = window.confirm('Are you sure you want to log out?');
-        if (!confirmed) {
-            return;
-        }
-
-        localStorage.removeItem('token');
+        setIsLogoutModalOpen(true);
         setIsProfileMenuOpen(false);
+    };
+
+    const confirmLogout = () => {
+        localStorage.removeItem('token');
+        setIsLogoutModalOpen(false);
         navigate('/', { replace: true });
+    };
+
+    const cancelLogout = () => {
+        setIsLogoutModalOpen(false);
     };
 
     return (
@@ -72,7 +77,7 @@ const Navbar = ({ displayName, activePage, searchTerm, onSearchChange }) => {
                     <HomeIcon style={{ fontSize: '30px' }} />
                     <span className="nav-tooltip">Home</span>
                 </span>
-                <span className={`nav-icon-btn${activePage === 'favorites' ? ' active' : ''}`}>
+                <span className={`nav-icon-btn${activePage === 'favorites' ? ' active' : ''}`} onClick={() => navigate('/favorites')}>
                     <StarIcon style={{ fontSize: '30px' }} />
                     <span className="nav-tooltip">Favorites</span>
                 </span>
@@ -126,6 +131,63 @@ const Navbar = ({ displayName, activePage, searchTerm, onSearchChange }) => {
                     </div>
                 )}
             </div>
+
+            {isLogoutModalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                        textAlign: 'center',
+                        maxWidth: '400px',
+                        width: '90%'
+                    }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Confirm Logout</h3>
+                        <p style={{ marginBottom: '20px', color: '#666' }}>Are you sure you want to log out?</p>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                            <button 
+                                onClick={cancelLogout} 
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    borderRadius: '4px', 
+                                    border: '1px solid #ccc', 
+                                    backgroundColor: '#fff', 
+                                    cursor: 'pointer',
+                                    color: '#333'
+                                }}
+                                onMouseOver={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                                onMouseOut={(e) => e.target.style.backgroundColor = '#fff'}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmLogout} 
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    borderRadius: '4px', 
+                                    border: 'none', 
+                                    backgroundColor: '#d32f2f', 
+                                    color: 'white', 
+                                    cursor: 'pointer' 
+                                }}
+                                onMouseOver={(e) => e.target.style.backgroundColor = '#b71c1c'}
+                                onMouseOut={(e) => e.target.style.backgroundColor = '#d32f2f'}
+                            >
+                                Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header>
     );
 };

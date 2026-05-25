@@ -66,7 +66,7 @@
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     border: 1px solid transparent;
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -74,7 +74,7 @@
 
 .barber-card.selected {
     border-color: #1a73e8;
-    box-shadow: 0 3px 8px rgba(26,115,232,0.2);
+    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.2);
 }
 
 .card-image {
@@ -97,7 +97,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-info {
@@ -159,9 +159,6 @@
 }
 
 .map-card-popup {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -172,6 +169,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 0; 
+    margin-bottom: 5px;
+}
+
+/* Hide the native Google Maps InfoWindow close button */
+.gm-ui-hover-effect {
+    display: none !important;
 }
 
 .popup-btn {

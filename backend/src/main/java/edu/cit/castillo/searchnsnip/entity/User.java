@@ -32,6 +32,14 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @ManyToMany
+    @JoinTable(
+        name = "user_favorite_barbershops",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "shop_id")
+    )
+    private java.util.Set<Barbershop> favoriteBarbershops = new java.util.HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -105,5 +113,13 @@ public class User {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public java.util.Set<Barbershop> getFavoriteBarbershops() {
+        return favoriteBarbershops;
+    }
+
+    public void setFavoriteBarbershops(java.util.Set<Barbershop> favoriteBarbershops) {
+        this.favoriteBarbershops = favoriteBarbershops;
     }
 }

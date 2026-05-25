@@ -1,8 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import Navbar from './Navbar';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AddIcon from '@mui/icons-material/Add';
+import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import '../css/BarbershopUpload.css';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const libraries = ['places'];
 
@@ -23,9 +36,24 @@ const BarbershopUpload = () => {
     const [coordinates, setCoordinates] = useState(null);
     const [mapModalOpen, setMapModalOpen] = useState(false);
     const [serviceModalOpen, setServiceModalOpen] = useState(false);
-    const [newService, setNewService] = useState({ name: '', description: '', price: '', duration: '', photoPreview: null });
+    const [newService, setNewService] = useState({ name: '', description: '', price: '', photoPreview: null, category: 'HAIRCUT' });
     const [showcaseImages, setShowcaseImages] = useState([]);
     
+    const [categories, setCategories] = useState(['HAIRCUT']);
+    const [activeCategory, setActiveCategory] = useState('HAIRCUT');
+    const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    
+    const [discardModalOpen, setDiscardModalOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
+
+    const showToast = (message, type = 'success') => {
+        setToastMessage(message);
+        setToastType(type);
+        setTimeout(() => setToastMessage(''), 3000);
+    };
+
     const navigate = useNavigate();
     const location = useLocation();
     const shopData = location.state?.shopData;
@@ -63,10 +91,10 @@ const BarbershopUpload = () => {
                         const mappedServices = data.map(s => ({
                             id: s.serviceId || Date.now() + Math.random(),
                             name: s.name,
-                            duration: s.duration,
                             price: s.price,
                             description: s.description,
-                            photo: s.photo
+                            photo: s.photo,
+                            category: 'HAIRCUT'
                         }));
                         setServices(mappedServices);
                     }
@@ -143,7 +171,7 @@ const BarbershopUpload = () => {
             lat: e.latLng.lat(),
             lng: e.latLng.lng()
         });
-        
+
         // Reverse geocoding could be added here to update the 'address' text field
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ location: { lat: e.latLng.lat(), lng: e.latLng.lng() } }, (results, status) => {
@@ -153,48 +181,100 @@ const BarbershopUpload = () => {
         });
     };
 
-    const handleShowcaseUpload = (e) => {
+    const handleShowcaseUpload = async (e) => {
         if (e.target.files) {
-            Array.from(e.target.files).forEach(file => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    setShowcaseImages(prev => {
-                        const combined = [...prev, reader.result];
-                        return combined.slice(0, 4); // Keep maximum 4 images
-                    });
-                };
-            });
+            const files = Array.from(e.target.files);
+            showToast('Uploading images to bucket...', 'success');
+            
+            for (const file of files) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const filePath = `showcases/${fileName}`;
+                
+                const { error: uploadError } = await supabase.storage
+                    .from('barbershop-images')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    showToast('Error uploading image to bucket', 'error');
+                    console.error("Upload error:", uploadError);
+                    continue;
+                }
+
+                const { data } = supabase.storage
+                    .from('barbershop-images')
+                    .getPublicUrl(filePath);
+
+                setShowcaseImages(prev => {
+                    const combined = [...prev, data.publicUrl];
+                    return combined.slice(0, 4); // Keep maximum 4 images
+                });
+            }
         }
     };
 
-    const handleServicePhotoUpload = (e) => {
+    const handleServicePhotoUpload = async (e) => {
         if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            reader.readAsDataURL(e.target.files[0]);
-            reader.onload = () => {
-                setNewService({ ...newService, photoPreview: reader.result });
-            };
+            const file = e.target.files[0];
+            showToast('Uploading service photo...', 'success');
+            
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `services/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('barbershop-images')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                showToast('Error uploading service image', 'error');
+                console.error("Upload error:", uploadError);
+                return;
+            }
+
+            const { data } = supabase.storage
+                .from('barbershop-images')
+                .getPublicUrl(filePath);
+
+            setNewService({ ...newService, photoPreview: data.publicUrl });
         }
     };
 
     const addService = () => {
-        if (!newService.name || !newService.price || !newService.duration) return;
-        
+        if (!newService.name || !newService.price) return;
+
         setServices([
-            ...services, 
-            { 
-                id: Date.now(), 
-                name: newService.name.toUpperCase(), 
-                duration: newService.duration.toUpperCase(), 
+            ...services,
+            {
+                id: Date.now(),
+                name: newService.name.toUpperCase(),
                 price: `₱ ${newService.price}`,
                 description: newService.description,
-                photo: newService.photoPreview
+                photo: newService.photoPreview,
+                category: activeCategory
             }
         ]);
-        
-        setNewService({ name: '', description: '', price: '', duration: '', photoPreview: null });
+
+        setNewService({ name: '', description: '', price: '', photoPreview: null, category: activeCategory });
         setServiceModalOpen(false);
+    };
+
+    const addCategory = () => {
+        if (newCategoryName.trim() && !categories.includes(newCategoryName.toUpperCase())) {
+            setCategories([...categories, newCategoryName.toUpperCase()]);
+            setActiveCategory(newCategoryName.toUpperCase());
+        }
+        setNewCategoryName('');
+        setCategoryModalOpen(false);
+    };
+
+    const handleDiscardServices = () => {
+        setServices([]);
+        setDiscardModalOpen(false);
+    };
+
+    const handleSaveServices = () => {
+        showToast('System successfully saved these batch of services.', 'success');
     };
 
     const removeService = (id) => {
@@ -203,7 +283,7 @@ const BarbershopUpload = () => {
 
     const handleEstablishBarbershop = async () => {
         if (!name || !address || !coordinates) {
-            alert('Please provide a name, address, and select a location on the map.');
+            showToast('Please provide a name, address, and select a location on the map.', 'error');
             return;
         }
 
@@ -224,8 +304,8 @@ const BarbershopUpload = () => {
                 name: s.name,
                 description: s.description,
                 price: s.price,
-                duration: s.duration,
-                photo: s.photo
+                photo: s.photo,
+                category: s.category
             }))
         };
 
@@ -242,15 +322,15 @@ const BarbershopUpload = () => {
             });
 
             if (response.ok) {
-                alert(`Barbershop successfully ${isEditMode ? 'updated' : 'established'}!`);
-                navigate('/dashboard'); // or to another management page if you build one
+                showToast(`Barbershop successfully ${isEditMode ? 'updated' : 'established'}!`, 'success');
+                setTimeout(() => navigate('/dashboard'), 3000);
             } else {
                 console.error(`Failed to ${isEditMode ? 'update' : 'establish'} barbershop`, await response.text());
-                alert(`Failed to ${isEditMode ? 'update' : 'establish'} barbershop. Please try again.`);
+                showToast(`Failed to ${isEditMode ? 'update' : 'establish'} barbershop. Please try again.`, 'error');
             }
         } catch (error) {
             console.error("Error connecting to server:", error);
-            alert('Error connecting to server. Please try again later.');
+            showToast('Error connecting to server. Please try again later.', 'error');
         }
     };
 
@@ -267,67 +347,101 @@ const BarbershopUpload = () => {
                         <div className="establish-main">
                             <div className="setup-card">
                                 <h3 className="card-title" style={{ color: '#000b2b', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: '800' }}>
-                                    <span style={{ color: '#e53935' }}>✂</span> IDENTITY
+                                    <ContentCutIcon style={{ color: '#e53935', fontSize: '20px' }} /> IDENTITY
                                 </h3>
                                 <div className="form-group">
                                     <label>BARBERSHOP NAME</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="e.g. THE GILDED BLADE" 
-                                        value={name} 
-                                        onChange={(e) => setName(e.target.value)} 
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. THE GILDED BLADE"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
                                         disabled={isEditMode}
                                         style={isEditMode ? { backgroundColor: '#f0f0f0', color: '#888', cursor: 'not-allowed' } : {}}
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>PRIMARY LOCATION</label>
-                                    {isLoaded ? (
-                                        <Autocomplete
-                                            onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
-                                            onPlaceChanged={onPlaceChanged}
-                                        >
-                                            <input 
-                                                type="text" 
-                                                placeholder="STREET ADDRESS, CITY, STATE" 
-                                                value={address} 
-                                                onChange={(e) => setAddress(e.target.value)} 
-                                            />
-                                        </Autocomplete>
-                                    ) : (
-                                        <input 
-                                            type="text" 
-                                            placeholder="STREET ADDRESS, CITY, STATE" 
-                                            value={address} 
-                                            onChange={(e) => setAddress(e.target.value)} 
-                                        />
-                                    )}
+                                    <label>LOCATION</label>
+                                    <input
+                                        type="text"
+                                        placeholder="CHOOSE LOCATION ON MAP"
+                                        value={address}
+                                        readOnly
+                                        onClick={() => setMapModalOpen(true)}
+                                        style={{ cursor: 'pointer', backgroundColor: '#f0f4f8', color: '#555' }}
+                                    />
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-                                        <button type="button" className="choose-map-btn" onClick={() => setMapModalOpen(true)}>
-                                            <span style={{ color: '#007bff' }}>📍</span> Choose on Map
+                                        <button type="button" className="choose-map-btn" onClick={() => setMapModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <LocationOnOutlinedIcon style={{ color: '#007bff', fontSize: '18px' }} /> Choose on Map
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="setup-card">
-                                <div className="card-header-flex">
-                                    <h3 className="card-title" style={{ color: '#000b2b', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: '800' }}>
-                                        <span style={{ color: '#e53935' }}>💈</span> GROOMING SERVICES
-                                    </h3>
-                                    <button type="button" className="add-service-btn" onClick={() => setServiceModalOpen(true)}>+ ADD NEW SERVICE</button>
+                            <div className="setup-card" style={{ padding: '40px', backgroundColor: '#fafbfc' }}>
+                                <h1 style={{ color: '#000b2b', fontWeight: '900', fontSize: '28px', marginTop: 0, marginBottom: '30px', textTransform: 'uppercase' }}>MANAGE SERVICES</h1>
+                                
+                                <h4 style={{ color: '#888', fontSize: '10px', letterSpacing: '1px', fontWeight: '800', marginBottom: '15px' }}>CATEGORIES</h4>
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+                                    {categories.map(cat => (
+                                        <button 
+                                            key={cat} 
+                                            onClick={() => setActiveCategory(cat)}
+                                            style={{ 
+                                                padding: '12px 25px', 
+                                                backgroundColor: activeCategory === cat ? '#000b2b' : '#fff', 
+                                                color: activeCategory === cat ? '#fff' : '#000b2b',
+                                                border: `1px solid ${activeCategory === cat ? '#000b2b' : '#e0e0e0'}`,
+                                                fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' 
+                                            }}>
+                                            {cat}
+                                            {activeCategory === cat && <span style={{ backgroundColor: '#2196F3', color: 'white', borderRadius: '4px', padding: '2px 6px', fontSize: '10px' }}>{services.filter(s => s.category === cat).length}</span>}
+                                        </button>
+                                    ))}
+                                    <button 
+                                        onClick={() => setCategoryModalOpen(true)}
+                                        style={{ 
+                                            padding: '12px 25px', backgroundColor: 'transparent', color: '#e53935', 
+                                            border: '1px dashed #e53935', fontWeight: '800', fontSize: '12px', cursor: 'pointer' 
+                                        }}>
+                                        + ADD CATEGORY
+                                    </button>
                                 </div>
+
+                                <h2 style={{ color: '#000b2b', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '20px', fontWeight: '900', marginBottom: '20px' }}>
+                                    <ContentCutIcon style={{ color: '#e53935' }} /> {activeCategory} SERVICES
+                                </h2>
+
                                 <div className="services-list">
-                                    {services.map(service => (
-                                        <div key={service.id} className="service-item">
-                                            <div className="service-icon" style={{ backgroundImage: service.photo ? `url(${service.photo})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', fontSize: service.photo ? '0' : '20px' }}>⏱</div>
-                                            <div className="service-details">
-                                                <h4 style={{ margin: '0 0 5px 0', fontSize: '14px', color: '#000b2b', fontWeight: '800' }}>{service.name}</h4>
-                                                <p style={{ margin: 0, fontSize: '11px', color: '#777', textTransform: 'uppercase', fontWeight: '600' }}>{service.duration} • {service.price}</p>
+                                    {services.filter(s => s.category === activeCategory).map(service => (
+                                        <div key={service.id} className="service-item" style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', borderLeft: '4px solid #000b2b', padding: '15px', display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                                            <div style={{ width: '60px', height: '60px', backgroundColor: '#f0f0f0', backgroundImage: service.photo ? `url(${service.photo})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', marginRight: '20px' }}></div>
+                                            <div style={{ flex: 1 }}>
+                                                <h4 style={{ margin: '0 0 5px 0', fontSize: '16px', color: '#000b2b', fontWeight: '900', textTransform: 'uppercase' }}>{service.name}</h4>
+                                                <p style={{ margin: 0, fontSize: '12px', color: '#888' }}>{service.description}</p>
                                             </div>
-                                            <button type="button" className="delete-btn" onClick={() => removeService(service.id)}>🗑</button>
+                                            <div style={{ textAlign: 'right', marginRight: '20px' }}>
+                                                <p style={{ margin: '0 0 5px 0', fontSize: '10px', color: '#888', fontWeight: '800' }}>PRICE</p>
+                                                <p style={{ margin: 0, fontSize: '16px', color: '#000b2b', fontWeight: '900' }}>{service.price}</p>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '5px' }}>
+                                                <button style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', padding: '10px', cursor: 'pointer' }}>✎</button>
+                                                <button onClick={() => removeService(service.id)} style={{ background: '#f5f5f5', border: '1px solid #e0e0e0', padding: '10px', cursor: 'pointer' }}>🗑</button>
+                                            </div>
                                         </div>
                                     ))}
+                                    
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setServiceModalOpen(true)}
+                                        style={{ width: '100%', padding: '20px', background: 'transparent', border: '1px dashed #ccc', color: '#555', fontWeight: '800', fontSize: '12px', cursor: 'pointer', marginTop: '10px', letterSpacing: '1px' }}>
+                                        + ADD {activeCategory} SERVICE
+                                    </button>
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #e0e0e0' }}>
+                                    <button onClick={() => setDiscardModalOpen(true)} style={{ background: 'transparent', color: '#555', border: '1px solid #ccc', padding: '12px 25px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', borderRadius: '4px' }}>Discard Service</button>
+                                    <button onClick={handleSaveServices} style={{ background: '#2196F3', color: 'white', border: 'none', padding: '12px 25px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', borderRadius: '4px' }}>Save Service</button>
                                 </div>
                             </div>
                         </div>
@@ -335,10 +449,10 @@ const BarbershopUpload = () => {
                         <div className="establish-sidebar">
                             <div className="setup-card showcase-card">
                                 <h3 className="card-title" style={{ color: '#000b2b', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: '800' }}>
-                                    <span style={{ color: '#e53935' }}>🖼</span> SHOWCASE
+                                    <AddPhotoAlternateOutlinedIcon style={{ color: '#e53935', fontSize: '20px' }} /> SHOWCASE
                                 </h3>
                                 <div className="upload-box" onClick={() => showcaseInputRef.current.click()}>
-                                    <span className="upload-icon" style={{ fontSize: '24px', color: '#90add3' }}>☁</span>
+                                    <AddIcon style={{ fontSize: '28px', color: '#90add3' }} />
                                     <h4 style={{ margin: '10px 0 5px 0', color: '#000b2b', fontSize: '12px', fontWeight: '800' }}>UPLOAD PICTURES</h4>
                                     <p style={{ margin: 0, fontSize: '9px', color: '#777', fontWeight: 'bold' }}>HIGH-RES INTERIOR (JPG, PNG)</p>
                                     <input type="file" multiple accept="image/png, image/jpeg" style={{ display: 'none' }} ref={showcaseInputRef} onChange={handleShowcaseUpload} />
@@ -346,7 +460,7 @@ const BarbershopUpload = () => {
                                 <div className="image-grid">
                                     {[0, 1, 2, 3].map(index => (
                                         <div key={index} className={`image-cell ${!showcaseImages[index] ? 'empty' : ''}`}>
-                                            {showcaseImages[index] ? <img src={showcaseImages[index]} alt={`Shop ${index+1}`} /> : '+'}
+                                            {showcaseImages[index] ? <img src={showcaseImages[index]} alt={`Shop ${index + 1}`} /> : '+'}
                                         </div>
                                     ))}
                                 </div>
@@ -354,10 +468,10 @@ const BarbershopUpload = () => {
 
                             <button type="button" className="action-btn primary-action" onClick={handleEstablishBarbershop}>{isEditMode ? 'UPDATE BARBERSHOP' : 'ESTABLISH BARBERSHOP'}</button>
                             <button type="button" className="action-btn secondary-action">SAVE AS DRAFT</button>
-                            
-                            <div className="disclaimer-box">
-                                <span className="info-icon" style={{ color: '#e53935' }}>ⓘ</span>
-                                <p>ENSURE THAT THE BARBERSHOP YOU UPLOAD IS ACCURATE. FAKE BARBERSHOPS WILL BE SUBJECT TO BANS.</p>
+
+                            <div className="disclaimer-box" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                <InfoOutlinedIcon style={{ color: '#e53935', fontSize: '20px' }} />
+                                <p style={{ margin: 0 }}>ENSURE THAT THE BARBERSHOP YOU UPLOAD IS ACCURATE. FAKE BARBERSHOPS WILL BE SUBJECT TO BANS.</p>
                             </div>
                         </div>
                     </div>
@@ -371,27 +485,27 @@ const BarbershopUpload = () => {
                                             <span style={{ fontSize: '10px', color: '#e53935', fontWeight: '800', letterSpacing: '1px' }}>NEW LISTING</span>
                                             <h2 style={{ margin: 0, color: '#000b2b', fontSize: '32px', fontWeight: '900', letterSpacing: '-1px' }}>ADD NEW SERVICE</h2>
                                         </div>
-                                        <div style={{ fontSize: '70px', color: '#f5f5f5', lineHeight: '0.8', marginRight: '-20px', marginTop: '-10px' }}>✂</div>
+                                        <ContentCutIcon style={{ fontSize: '70px', color: '#f5f5f5', marginRight: '-20px', marginTop: '-10px' }} />
                                     </div>
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                                         <div>
                                             <div className="form-group" style={{ marginBottom: '20px' }}>
                                                 <label>SERVICE NAME</label>
-                                                <input 
-                                                    type="text" 
-                                                    placeholder="e.g., Luxury Shave" 
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g., Luxury Shave"
                                                     value={newService.name}
-                                                    onChange={e => setNewService({...newService, name: e.target.value})}
+                                                    onChange={e => setNewService({ ...newService, name: e.target.value })}
                                                     style={{ border: 'none', backgroundColor: '#f0f4f8', borderRadius: '0' }}
                                                 />
                                             </div>
                                             <div className="form-group">
                                                 <label>DESCRIPTION</label>
-                                                <textarea 
-                                                    placeholder="A deep cleansing facial with a hot towel shave..." 
+                                                <textarea
+                                                    placeholder="A deep cleansing facial with a hot towel shave..."
                                                     value={newService.description}
-                                                    onChange={e => setNewService({...newService, description: e.target.value})}
+                                                    onChange={e => setNewService({ ...newService, description: e.target.value })}
                                                     style={{ width: '100%', padding: '15px', border: 'none', backgroundColor: '#f0f4f8', borderRadius: '0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', height: '120px', resize: 'none', fontFamily: 'inherit' }}
                                                 ></textarea>
                                             </div>
@@ -399,13 +513,13 @@ const BarbershopUpload = () => {
                                         <div>
                                             <div className="form-group" style={{ marginBottom: '20px' }}>
                                                 <label>SERVICE PHOTO</label>
-                                                <div 
+                                                <div
                                                     style={{ height: '120px', backgroundColor: '#f0f4f8', border: '2px dashed #ddd', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backgroundImage: newService.photoPreview ? `url(${newService.photoPreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
                                                     onClick={() => servicePhotoInputRef.current.click()}
                                                 >
                                                     {!newService.photoPreview && (
                                                         <>
-                                                            <span style={{ fontSize: '24px', color: '#000b2b', marginBottom: '5px' }}>📷</span>
+                                                            <AddPhotoAlternateOutlinedIcon style={{ fontSize: '28px', color: '#000b2b', marginBottom: '5px' }} />
                                                             <span style={{ fontSize: '10px', color: '#777', fontWeight: 'bold' }}>DRAG PHOTO OR CLICK TO UPLOAD</span>
                                                         </>
                                                     )}
@@ -417,24 +531,14 @@ const BarbershopUpload = () => {
                                                     <label>PRICE</label>
                                                     <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f0f4f8', padding: '0 15px' }}>
                                                         <span style={{ fontWeight: 'bold', color: '#000b2b' }}>₱</span>
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="0.00" 
+                                                        <input
+                                                            type="text"
+                                                            placeholder="0.00"
                                                             value={newService.price}
-                                                            onChange={e => setNewService({...newService, price: e.target.value})}
+                                                            onChange={e => setNewService({ ...newService, price: e.target.value })}
                                                             style={{ border: 'none', backgroundColor: 'transparent', padding: '15px 5px' }}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div className="form-group" style={{ flex: 1 }}>
-                                                    <label>DURATION</label>
-                                                    <input 
-                                                        type="text" 
-                                                        placeholder="30 mins" 
-                                                        value={newService.duration}
-                                                        onChange={e => setNewService({...newService, duration: e.target.value})}
-                                                        style={{ border: 'none', backgroundColor: '#f0f4f8', borderRadius: '0' }}
-                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -442,7 +546,7 @@ const BarbershopUpload = () => {
 
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
                                         <button onClick={() => setServiceModalOpen(false)} style={{ background: 'none', border: 'none', color: '#e53935', fontWeight: '800', fontSize: '12px', letterSpacing: '1px', cursor: 'pointer', padding: '10px 0' }}>CANCEL</button>
-                                        <button onClick={addService} style={{ background: '#000b2b', color: 'white', border: 'none', padding: '15px 30px', fontWeight: '800', fontSize: '12px', letterSpacing: '1px', cursor: 'pointer' }}>ADD SERVICE</button>
+                                        <button onClick={addService} style={{ background: '#2196F3', color: 'white', border: 'none', padding: '15px 30px', fontWeight: '800', fontSize: '12px', letterSpacing: '1px', cursor: 'pointer' }}>ADD SERVICE</button>
                                     </div>
                                 </div>
                             </div>
@@ -468,9 +572,47 @@ const BarbershopUpload = () => {
                                 )}
                                 <div className="map-modal-footer" style={{ padding: '15px', borderTop: '1px solid #ddd', display: 'flex', justifyContent: 'flex-end', background: '#f9f9f9', gap: '10px' }}>
                                     <button onClick={() => setMapModalOpen(false)} style={{ padding: '10px 20px', background: 'white', color: '#333', border: '1px solid #ccc', borderRadius: '5px', cursor: 'pointer', fontWeight: '600' }}>Cancel</button>
-                                    <button onClick={() => setMapModalOpen(false)} style={{ padding: '10px 20px', background: '#000b2b', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: '600' }}>Confirm Location</button>
+                                    <button onClick={() => setMapModalOpen(false)} style={{ padding: '10px 20px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: '600' }}>Confirm Location</button>
                                 </div>
                             </div>
+                        </div>
+                    )}
+
+                    {categoryModalOpen && (
+                        <div className="map-modal-overlay" onClick={() => setCategoryModalOpen(false)}>
+                            <div className="map-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', padding: '30px' }}>
+                                <h3 style={{ margin: '0 0 20px 0', color: '#000b2b' }}>Add New Category</h3>
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. SHAVE" 
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    style={{ width: '100%', padding: '12px', border: '1px solid #ccc', marginBottom: '20px', boxSizing: 'border-box' }}
+                                />
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button onClick={() => setCategoryModalOpen(false)} style={{ padding: '10px 20px', background: 'white', border: '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
+                                    <button onClick={addCategory} style={{ padding: '10px 20px', background: '#2196F3', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Add Category</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {discardModalOpen && (
+                        <div className="map-modal-overlay" onClick={() => setDiscardModalOpen(false)}>
+                            <div className="map-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', padding: '30px', textAlign: 'center' }}>
+                                <h3 style={{ margin: '0 0 15px 0', color: '#e53935' }}>Discard Changes?</h3>
+                                <p style={{ color: '#555', marginBottom: '25px' }}>Are you sure you want to discard these services? All unsaved services will be lost.</p>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+                                    <button onClick={() => setDiscardModalOpen(false)} style={{ padding: '10px 25px', background: 'white', border: '1px solid #ccc', cursor: 'pointer', fontWeight: 'bold' }}>Cancel</button>
+                                    <button onClick={handleDiscardServices} style={{ padding: '10px 25px', background: '#e53935', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Discard</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {toastMessage && (
+                        <div style={{ position: 'fixed', top: '30px', left: '50%', transform: 'translateX(-50%)', background: toastType === 'error' ? '#e53935' : '#4caf50', color: 'white', padding: '15px 30px', borderRadius: '5px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 9999, fontWeight: 'bold' }}>
+                            {toastMessage}
                         </div>
                     )}
                 </div>

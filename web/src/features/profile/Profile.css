@@ -41,6 +41,9 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .edit-cover-btn:hover {
@@ -91,6 +94,12 @@
     font-size: 0.9rem;
 }
 
+.profile-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .profile-actions {
     display: flex;
     gap: 10px;
@@ -104,6 +113,9 @@
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-secondary {
@@ -114,6 +126,9 @@
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Stats Section */
@@ -185,6 +200,7 @@
     border-bottom: 1px solid #f3f4f6;
     display: flex;
     align-items: center;
+    gap: 12px;
     color: #374151;
     cursor: pointer;
     font-size: 0.95rem;
@@ -198,66 +214,17 @@
     background: #f9fafb;
 }
 
-.settings-menu li span:first-child {
-    margin-right: 15px;
-    opacity: 0.6;
+.settings-menu .menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
 }
 
 .settings-menu .arrow {
     margin-left: auto;
     color: #9ca3af;
     font-size: 0.8rem;
-}
-
-.pro-member-card {
-    background: #1a73e8;
-    color: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(26,115,232,0.3);
-}
-
-.pro-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.pro-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-}
-
-.medal-icon {
-    font-size: 1.5rem;
-    opacity: 0.8;
-}
-
-.pro-member-card p {
-    margin: 0 0 20px 0;
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.progress-bar {
-    height: 8px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: white;
-    border-radius: 4px;
-}
-
-.progress-text {
-    font-size: 0.8rem;
-    text-align: right;
-    font-weight: bold;
 }
 
 /* Recent Visits */
@@ -291,6 +258,13 @@
 .visit-list {
     display: flex;
     flex-direction: column;
+}
+
+.visit-list.empty-state {
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
 }
 
 .visit-card {

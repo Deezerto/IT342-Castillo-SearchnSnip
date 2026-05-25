@@ -32,16 +32,19 @@ public class BarbershopController {
     private final BarbershopRepository barbershopRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final edu.cit.castillo.searchnsnip.repository.UserRepository userRepository;
 
     @Autowired
     public BarbershopController(
             BarbershopRepository barbershopRepository,
             BookingRepository bookingRepository,
-            UserService userService
+            UserService userService,
+            edu.cit.castillo.searchnsnip.repository.UserRepository userRepository
     ) {
         this.barbershopRepository = barbershopRepository;
         this.bookingRepository = bookingRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -243,6 +246,7 @@ public class BarbershopController {
                     existingService.setPrice(service.getPrice());
                     existingService.setDuration(service.getDuration());
                     existingService.setPhoto(service.getPhoto());
+                    existingService.setCategory(service.getCategory());
                     updatedServices.add(existingService);
                 } else {
                     service.setServiceId(null);
@@ -260,6 +264,52 @@ public class BarbershopController {
 
         barbershopRepository.save(existingShop);
         return ResponseEntity.ok(java.util.Map.of("message", "Barbershop updated successfully", "shopId", shopId));
+    }
+
+    @GetMapping("/favorites")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getFavoriteBarbershops(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String email = authentication.getName();
+        Optional<User> userOpt = userService.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        User user = userOpt.get();
+        List<Long> favoriteIds = user.getFavoriteBarbershops().stream().map(Barbershop::getShopId).toList();
+        return ResponseEntity.ok(favoriteIds);
+    }
+
+    @PostMapping("/favorites/{shopId}")
+    @Transactional
+    public ResponseEntity<?> toggleFavoriteBarbershop(@PathVariable Long shopId, Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String email = authentication.getName();
+        Optional<User> userOpt = userService.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        User user = userOpt.get();
+        
+        Optional<Barbershop> shopOpt = barbershopRepository.findById(shopId);
+        if (shopOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shop not found");
+        }
+        Barbershop shop = shopOpt.get();
+        
+        boolean isFavorite = user.getFavoriteBarbershops().contains(shop);
+        if (isFavorite) {
+            user.getFavoriteBarbershops().remove(shop);
+        } else {
+            user.getFavoriteBarbershops().add(shop);
+        }
+        
+        userRepository.save(user);
+        return ResponseEntity.ok(java.util.Map.of("shopId", shopId, "isFavorite", !isFavorite));
     }
 
     public static class BarbershopSummary {
@@ -351,6 +401,7 @@ public class BarbershopController {
         private final String price;
         private final String duration;
         private final String photo;
+        private final String category;
 
         public ServiceSummary(
                 Long serviceId,
@@ -358,7 +409,8 @@ public class BarbershopController {
                 String description,
                 String price,
                 String duration,
-                String photo
+                String photo,
+                String category
         ) {
             this.serviceId = serviceId;
             this.name = name;
@@ -366,6 +418,7 @@ public class BarbershopController {
             this.price = price;
             this.duration = duration;
             this.photo = photo;
+            this.category = category;
         }
 
         public static ServiceSummary fromEntity(Service service) {
@@ -375,7 +428,8 @@ public class BarbershopController {
                     service.getDescription(),
                     service.getPrice(),
                     service.getDuration(),
-                    service.getPhoto()
+                    service.getPhoto(),
+                    service.getCategory()
             );
         }
 
@@ -401,6 +455,10 @@ public class BarbershopController {
 
         public String getPhoto() {
             return photo;
+        }
+
+        public String getCategory() {
+            return category;
         }
     }
 

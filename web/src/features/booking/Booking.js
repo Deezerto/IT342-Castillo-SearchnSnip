@@ -218,7 +218,8 @@ const Booking = () => {
                     description: service.description || 'No description available.',
                     duration: service.duration || '30 min',
                     price: parsePriceValue(service.price),
-                    image: service.photo || fallbackServices[index % fallbackServices.length].image
+                    image: service.photo || fallbackServices[index % fallbackServices.length].image,
+                    category: service.category || 'Haircuts'
                 }));
 
                 setServices(normalizedServices);
@@ -246,6 +247,18 @@ const Booking = () => {
         () => selectedServices.reduce((sum, service) => sum + service.price, 0),
         [selectedServices]
     );
+
+    const servicesByCategory = useMemo(() => {
+        const grouped = {};
+        services.forEach(service => {
+            const cat = service.category || 'Haircuts';
+            if (!grouped[cat]) {
+                grouped[cat] = [];
+            }
+            grouped[cat].push(service);
+        });
+        return grouped;
+    }, [services]);
 
     const calendarCells = useMemo(() => buildCalendarCells(activeMonth), [activeMonth]);
 
@@ -373,7 +386,7 @@ const Booking = () => {
                         <h2>{selectedShop?.name || 'Your Selected Barbershop'}</h2>
                     </header>
 
-                    <div className="booking-services-grid">
+                    <div>
                         {servicesLoading && <p className="booking-services-feedback">Loading services...</p>}
 
                         {!servicesLoading && servicesError && (
@@ -384,41 +397,50 @@ const Booking = () => {
                             <p className="booking-services-feedback">This shop has no services yet.</p>
                         )}
 
-                        {!servicesLoading && !servicesError && services.map((service) => {
-                            const isSelected = selectedServiceIds.includes(service.id);
+                        {!servicesLoading && !servicesError && services.length > 0 && Object.entries(servicesByCategory).map(([category, catServices]) => (
+                            <div key={category} className="booking-category-group" style={{ marginBottom: '40px' }}>
+                                <h2 style={{ marginBottom: '20px', color: '#000b2b', fontSize: '24px', fontWeight: '900', borderBottom: '2px solid #eaeaea', paddingBottom: '10px' }}>
+                                    {category.toUpperCase()}
+                                </h2>
+                                <div className="booking-services-grid">
+                                    {catServices.map((service) => {
+                                        const isSelected = selectedServiceIds.includes(service.id);
 
-                            return (
-                                <article
-                                    key={service.id}
-                                    className={`booking-service-card ${isSelected ? 'selected' : ''}`}
-                                >
-                                    <div className="booking-service-image-wrap">
-                                        <img src={service.image} alt={service.name} className="booking-service-image" />
-                                        {isSelected && (
-                                            <span className="booking-service-selected-badge">Selected</span>
-                                        )}
-                                    </div>
+                                        return (
+                                            <article
+                                                key={service.id}
+                                                className={`booking-service-card ${isSelected ? 'selected' : ''}`}
+                                            >
+                                                <div className="booking-service-image-wrap">
+                                                    <img src={service.image} alt={service.name} className="booking-service-image" />
+                                                    {isSelected && (
+                                                        <span className="booking-service-selected-badge">Selected</span>
+                                                    )}
+                                                </div>
 
-                                    <div className="booking-service-content">
-                                        <div className="booking-service-title-row">
-                                            <h3>{service.name}</h3>
-                                            <span className="booking-service-price">{formatCurrency(service.price)}</span>
-                                        </div>
+                                                <div className="booking-service-content">
+                                                    <div className="booking-service-title-row">
+                                                        <h3>{service.name}</h3>
+                                                        <span className="booking-service-price">{formatCurrency(service.price)}</span>
+                                                    </div>
 
-                                        <p>{service.description}</p>
-                                        <small>{service.duration}</small>
+                                                    <p>{service.description}</p>
+                                                    <small>{service.duration}</small>
 
-                                        <button
-                                            type="button"
-                                            className={`booking-service-btn ${isSelected ? 'added' : ''}`}
-                                            onClick={() => toggleService(service.id)}
-                                        >
-                                            {isSelected ? 'Added' : 'Select Service'}
-                                        </button>
-                                    </div>
-                                </article>
-                            );
-                        })}
+                                                    <button
+                                                        type="button"
+                                                        className={`booking-service-btn ${isSelected ? 'added' : ''}`}
+                                                        onClick={() => toggleService(service.id)}
+                                                    >
+                                                        {isSelected ? 'Added' : 'Select Service'}
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
@@ -451,13 +473,18 @@ const Booking = () => {
                                 }
 
                                 const selected = isSameDay(dateCell, selectedDate);
+                                
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const isPast = dateCell < today;
 
                                 return (
                                     <button
                                         type="button"
                                         key={dateCell.toISOString()}
                                         className={`booking-day-btn ${selected ? 'selected' : ''}`}
-                                        onClick={() => setSelectedDate(dateCell)}
+                                        onClick={() => !isPast && setSelectedDate(dateCell)}
+                                        disabled={isPast}
                                     >
                                         {dateCell.getDate()}
                                     </button>

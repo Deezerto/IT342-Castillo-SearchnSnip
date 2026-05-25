@@ -82,7 +82,8 @@
 .myb-kpi-header {
     background: #2196F3;
     color: #f3eded;
-    font-weight: normal;
+    font-weight: bold;
+    text-transform: uppercase;
     text-align: center;
     padding: 10px;
     font-size: 0.95rem;
@@ -306,7 +307,7 @@
     text-transform: uppercase;
     font-size: 1.4rem;
     letter-spacing: 0.6px;
-    font-weight: normal;
+    font-weight: bold;
 }
 
 .myb-reservations-head button {
@@ -316,7 +317,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 0.66rem;
-    font-weight: normal;
+    font-weight: bold;
     cursor: pointer;
 }
 

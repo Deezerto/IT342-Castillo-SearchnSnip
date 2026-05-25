@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import Navbar from '../../javascript/Navbar';
 import './Dashboard.css';
 
@@ -34,7 +36,40 @@ const Dashboard = () => {
     const [detailsModalShop, setDetailsModalShop] = useState(null);
     const [activeDetailImageIndex, setActiveDetailImageIndex] = useState(0);
     const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
+    const [favorites, setFavorites] = useState([]);
     const navigate = useNavigate();
+
+    const toggleFavorite = async (e, barberId) => {
+        e.stopPropagation();
+        
+        // Optimistic update
+        setFavorites(prev => 
+            prev.includes(barberId) 
+                ? prev.filter(id => id !== barberId)
+                : [...prev, barberId]
+        );
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:8080/api/shops/favorites/${barberId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to toggle favorite');
+            }
+        } catch (error) {
+            console.error("Error toggling favorite", error);
+            // Revert on error
+            setFavorites(prev => 
+                prev.includes(barberId) 
+                    ? prev.filter(id => id !== barberId)
+                    : [...prev, barberId]
+            );
+        }
+    };
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -128,7 +163,9 @@ const Dashboard = () => {
 
                 const shops = await response.json();
 
-                const normalizedShops = (Array.isArray(shops) ? shops : []).map((shop) => ({
+                const normalizedShops = (Array.isArray(shops) ? shops : [])
+                    .filter((shop) => !(shop.name || '').toLowerCase().includes('test'))
+                    .map((shop) => ({
                     showcaseImages: Array.isArray(shop.showcaseImages) && shop.showcaseImages.length > 0
                         ? shop.showcaseImages
                         : [fallbackShopImage],
@@ -153,22 +190,69 @@ const Dashboard = () => {
             }
         };
 
+        const loadFavorites = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/shops/favorites', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setFavorites(data);
+                }
+            } catch (error) {
+                console.error("Failed to load favorites", error);
+            }
+        };
+
         loadCurrentUser();
         loadBarbershops();
+        loadFavorites();
     }, [navigate]);
+
+    const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+        return R * c; 
+    };
 
     const filteredBarbers = useMemo(() => {
         const keyword = searchTerm.trim().toLowerCase();
 
-        if (!keyword) {
-            return barbers;
+        let filtered = barbers;
+        if (keyword) {
+            filtered = barbers.filter((barber) => {
+                const searchableText = `${barber.name} ${barber.address}`.toLowerCase();
+                return searchableText.includes(keyword);
+            });
         }
 
-        return barbers.filter((barber) => {
-            const searchableText = `${barber.name} ${barber.address}`.toLowerCase();
-            return searchableText.includes(keyword);
-        });
-    }, [barbers, searchTerm]);
+        if (userLocation) {
+            filtered = [...filtered].map(barber => {
+                if (barber.latitude != null && barber.longitude != null) {
+                    const distKm = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, barber.latitude, barber.longitude);
+                    const distMiles = distKm * 0.621371;
+                    return { ...barber, distance: distMiles };
+                }
+                return { ...barber, distance: null };
+            }).sort((a, b) => {
+                if (a.distance == null) return 1;
+                if (b.distance == null) return -1;
+                return a.distance - b.distance;
+            });
+        } else {
+            filtered = [...filtered].map(barber => ({ ...barber, distance: null }));
+        }
+
+        return filtered;
+    }, [barbers, searchTerm, userLocation]);
 
     const selectedBarber = barbers.find((barber) => barber.id === selectedBarberId) || null;
 
@@ -260,7 +344,12 @@ const Dashboard = () => {
                             {filteredBarbers.slice(0, 3).map(barber => (
                                 <div key={barber.id} className="barber-card" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', cursor: 'pointer' }} onClick={() => openDetailsModal(barber)}>
                                     <div style={{ height: '180px', backgroundImage: `url(${barber.image})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
-                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♡</div>
+                                        <div 
+                                            style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: favorites.includes(barber.id) ? '#fbbc04' : '#777' }}
+                                            onClick={(e) => toggleFavorite(e, barber.id)}
+                                        >
+                                            {favorites.includes(barber.id) ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                                        </div>
                                         {barber.name.includes("Classic") && <div style={{ position: 'absolute', bottom: '10px', left: '10px', background: '#ff3b5c', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>FEATURED</div>}
                                     </div>
                                     <div style={{ padding: '15px' }}>
@@ -269,7 +358,7 @@ const Dashboard = () => {
                                             <span style={{ color: '#ff9800', fontWeight: 'bold', fontSize: '0.9rem' }}>&#9733; 4.8</span>
                                         </div>
                                         <div style={{ color: '#777', fontSize: '0.85rem', marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
-                                            <span style={{ marginRight: '5px' }}>&#9582; 1.2 miles away •</span> {barber.address.substring(0, 15)}...
+                                            <span style={{ marginRight: '5px' }}>&#9582; {barber.distance != null ? `${barber.distance.toFixed(1)} miles away` : 'Distance unknown'} •</span> {barber.address.substring(0, 15)}...
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <span style={{ fontWeight: 'bold', color: '#2b52ff' }}>$35+</span>
@@ -288,7 +377,9 @@ const Dashboard = () => {
                             {[1, 2, 3].map(item => (
                                 <div key={`visited-${item}`} className="barber-card" style={{ background: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', cursor: 'pointer' }}>
                                     <div style={{ height: '180px', background: '#e0e0e0', position: 'relative' }}>
-                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♡</div>
+                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#777' }}>
+                                            <StarBorderIcon fontSize="small" />
+                                        </div>
                                     </div>
                                     <div style={{ padding: '15px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
@@ -348,12 +439,23 @@ const Dashboard = () => {
                                     <div
                                         className="card-image"
                                         style={{ backgroundImage: `url(${barber.image})`, backgroundSize: 'cover' }}
-                                    />
+                                    >
+                                        <button 
+                                            className="heart-btn" 
+                                            onClick={(e) => toggleFavorite(e, barber.id)}
+                                            style={{ color: favorites.includes(barber.id) ? '#fbbc04' : '#777' }}
+                                        >
+                                            {favorites.includes(barber.id) ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                                        </button>
+                                    </div>
                                     <div className="card-info">
                                         <div className="card-header">
                                             <h3>{barber.name}</h3>
                                         </div>
-                                        <div className="location">{barber.address}</div>
+                                        <div className="location">
+                                            {barber.distance != null && <span style={{ color: '#2b52ff', fontWeight: 'bold', marginRight: '5px' }}>{barber.distance.toFixed(1)} mi</span>}
+                                            {barber.address}
+                                        </div>
                                         <div className="card-footer">
                                             <button
                                                 className="book-btn"
@@ -409,6 +511,12 @@ const Dashboard = () => {
                                     <div className="map-card-popup">
                                         <div className="popup-header">
                                             <strong>Selected Location</strong>
+                                            <span 
+                                                onClick={() => setSelectedBarberId(null)} 
+                                                style={{ cursor: 'pointer', fontSize: '18px', color: '#555', padding: '0 5px', lineHeight: '1' }}
+                                            >
+                                                ✕
+                                            </span>
                                         </div>
                                         <div style={{ display: 'flex', gap: '10px', margin: '10px 0' }}>
                                             <img src={selectedBarber.image} alt={selectedBarber.name} style={{ width: '50px', height: '50px', borderRadius: '5px' }} />
@@ -418,8 +526,8 @@ const Dashboard = () => {
                                                 <span style={{ color: '#777', fontSize: '0.8rem' }}>{selectedBarber.address}</span>
                                             </div>
                                         </div>
-                                        <button className="popup-btn" type="button" onClick={() => openDetailsModal(selectedBarber)}>
-                                            View Full Details
+                                        <button className="popup-btn" type="button" onClick={() => proceedToBooking(selectedBarber)}>
+                                            Proceed to Booking
                                         </button>
                                     </div>
                                 </InfoWindow>
