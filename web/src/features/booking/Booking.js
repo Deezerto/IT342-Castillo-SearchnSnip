@@ -124,6 +124,7 @@ const Booking = () => {
         return new Date(today.getFullYear(), today.getMonth(), 1);
     });
     const [selectedDate, setSelectedDate] = useState(() => new Date());
+    const [popupState, setPopupState] = useState({ show: false, isSuccess: true, message: '' });
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -352,13 +353,17 @@ const Booking = () => {
             const confirmedStatus = booking?.status || 'Active';
             const confirmedTotalPrice = Number.isFinite(booking?.totalPrice) ? booking.totalPrice : totalPrice;
 
-            window.alert(
-                `Booking confirmed (${confirmedStatus}) for ${selectedServiceNames} on ${dateLabel}. Total: ${formatCurrency(confirmedTotalPrice)}.`
-            );
-
-            navigate('/dashboard');
+            setPopupState({
+                show: true,
+                isSuccess: true,
+                message: `Booking confirmed (${confirmedStatus}) for ${selectedServiceNames} on ${dateLabel}. Total: ${formatCurrency(confirmedTotalPrice)}.`
+            });
         } catch (error) {
-            window.alert(error?.message || 'Booking failed. Please try again.');
+            setPopupState({
+                show: true,
+                isSuccess: false,
+                message: error?.message || 'Booking failed. Please try again.'
+            });
         } finally {
             setBookingSubmitting(false);
         }
@@ -544,6 +549,32 @@ const Booking = () => {
                     </button>
                 </aside>
             </main>
+
+            {popupState.show && (
+                <div className="booking-popup-overlay">
+                    <div className="booking-popup-card">
+                        <div className={`booking-popup-icon ${popupState.isSuccess ? 'success' : 'error'}`}>
+                            {popupState.isSuccess ? '✓' : '!'}
+                        </div>
+                        <h3 className="booking-popup-title">
+                            {popupState.isSuccess ? 'Booking Confirmed!' : 'Booking Failed'}
+                        </h3>
+                        <p className="booking-popup-message">{popupState.message}</p>
+                        <button
+                            type="button"
+                            className="booking-popup-btn"
+                            onClick={() => {
+                                setPopupState({ ...popupState, show: false });
+                                if (popupState.isSuccess) {
+                                    navigate('/dashboard');
+                                }
+                            }}
+                        >
+                            {popupState.isSuccess ? 'Back to Dashboard' : 'Close'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

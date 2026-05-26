@@ -11,6 +11,7 @@ import Profile from './features/profile/Profile';
 import MyBarbershop from './features/barbershop/MyBarbershop';
 import BarbershopUpload from './javascript/BarbershopUpload';
 import Booking from './features/booking/Booking';
+import UserBookings from './features/booking/UserBookings';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -72,6 +73,11 @@ function App() {
           <Route path="/booking" element={
             <ProtectedRoute>
               <Booking />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-bookings" element={
+            <ProtectedRoute>
+              <UserBookings />
             </ProtectedRoute>
           } />
         </Routes>

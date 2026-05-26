@@ -81,7 +81,7 @@ const Navbar = ({ displayName, activePage, searchTerm, onSearchChange }) => {
                     <StarIcon style={{ fontSize: '30px' }} />
                     <span className="nav-tooltip">Favorites</span>
                 </span>
-                <span className={`nav-icon-btn${activePage === 'bookings' ? ' active' : ''}`} onClick={() => { }}>
+                <span className={`nav-icon-btn${activePage === 'bookings' ? ' active' : ''}`} onClick={() => navigate('/user-bookings')}>
                     <CalendarTodayIcon style={{ fontSize: '30px' }} />
                     <span className="nav-tooltip">Bookings</span>
                 </span>

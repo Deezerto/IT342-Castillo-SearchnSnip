@@ -15,14 +15,14 @@
         android:id="@+id/logoImage"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/logo" />
 
     <TextView
         android:id="@+id/logoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Snipn'Sketch"
+        android:text="Search n Snip"
         android:textColor="#0066FF"
         android:textSize="32sp"
         android:textStyle="bold" />

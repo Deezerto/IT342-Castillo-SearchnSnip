@@ -60,6 +60,7 @@ const MyBarbershop = () => {
     const [overview, setOverview] = useState(null);
     const [overviewLoading, setOverviewLoading] = useState(true);
     const [overviewError, setOverviewError] = useState(null);
+    const [selectedReservation, setSelectedReservation] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -139,6 +140,30 @@ const MyBarbershop = () => {
         loadCurrentUser();
         loadOverview();
     }, [navigate]);
+
+    const handleCompleteBooking = async () => {
+        if (!selectedReservation) return;
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:8080/api/bookings/${selectedReservation.bookingId}/complete`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                setOverview(prev => ({
+                    ...prev,
+                    activeReservationsList: prev.activeReservationsList.filter(r => r.bookingId !== selectedReservation.bookingId)
+                }));
+                setSelectedReservation(null);
+            } else {
+                alert('Failed to mark booking as completed.');
+            }
+        } catch (error) {
+            alert('Error connecting to the server.');
+        }
+    };
 
     const hasBarbershop = overview?.shopId != null;
     const shopDisplayName = (overview?.name || 'My Barbershop').toUpperCase();
@@ -292,12 +317,15 @@ const MyBarbershop = () => {
                                                     <span className="myb-active-chip">{(item.status || 'Active').toUpperCase()}</span>
                                                 </div>
 
+                                                <p style={{ margin: '4px 0 0', fontWeight: 'bold', color: '#1e293b' }}>
+                                                    {item.customerName || 'Unknown Customer'}
+                                                </p>
                                                 <p>{formatReservationDate(item.appointmentDate) || overview.location || 'Address unavailable'}</p>
 
                                                 <div className="myb-reservation-actions">
                                                     <button
                                                         type="button"
-                                                        onClick={() => navigate('/booking', { state: { shop: { id: overview.shopId, name: overview.name } } })}
+                                                        onClick={() => setSelectedReservation(item)}
                                                     >
                                                         See Details
                                                     </button>
@@ -311,6 +339,58 @@ const MyBarbershop = () => {
                     </>
                 )}
             </main>
+
+            {selectedReservation && (
+                <div className="myb-popup-overlay">
+                    <div className="myb-popup-card">
+                        <div className="myb-popup-header">
+                            <h3>Reservation Details</h3>
+                        </div>
+                        <div className="myb-popup-body">
+                            <div className="myb-popup-row">
+                                <span className="myb-popup-label">Customer</span>
+                                <span className="myb-popup-value">{selectedReservation.customerName || 'Unknown Customer'}</span>
+                            </div>
+                            <div className="myb-popup-row">
+                                <span className="myb-popup-label">Services</span>
+                                <span className="myb-popup-value">{selectedReservation.title || 'N/A'}</span>
+                            </div>
+                            <div className="myb-popup-row">
+                                <span className="myb-popup-label">Price</span>
+                                <span className="myb-popup-value myb-popup-price">{formatWholeCurrency(selectedReservation.totalPrice)}</span>
+                            </div>
+                            <div className="myb-popup-row">
+                                <span className="myb-popup-label">Status</span>
+                                <span className="myb-popup-value">{selectedReservation.status || 'Active'}</span>
+                            </div>
+                            <div className="myb-popup-row">
+                                <span className="myb-popup-label">Date</span>
+                                <span className="myb-popup-value">{formatReservationDate(selectedReservation.appointmentDate) || 'TBA'}</span>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                type="button"
+                                className="myb-popup-btn"
+                                style={{ background: '#f1f5f9', color: '#475569' }}
+                                onClick={() => setSelectedReservation(null)}
+                            >
+                                Close
+                            </button>
+                            {(!selectedReservation.status || selectedReservation.status.toLowerCase() === 'active') && (
+                                <button
+                                    type="button"
+                                    className="myb-popup-btn"
+                                    style={{ background: '#10b981' }}
+                                    onClick={handleCompleteBooking}
+                                >
+                                    Mark as Completed
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

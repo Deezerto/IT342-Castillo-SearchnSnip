@@ -20,5 +20,17 @@ interface UserApiService {
     fun getCurrentUser(@Header("Authorization") authorization: String): Call<CurrentUserResponse>
 
     @GET("api/shops")
-    fun getBarbershops(): Call<List<BarbershopSummary>>
+    fun getBarbershops(@Header("Authorization") authorization: String): Call<List<BarbershopSummary>>
+
+    @GET("api/shops/{shopId}/services")
+    fun getBarbershopServices(
+        @Header("Authorization") authorization: String,
+        @retrofit2.http.Path("shopId") shopId: Long
+    ): Call<List<ServiceSummary>>
+
+    @POST("api/bookings")
+    fun createBooking(
+        @Header("Authorization") authorization: String,
+        @Body request: CreateBookingRequest
+    ): Call<BookingSummary>
 }

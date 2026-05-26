@@ -464,6 +464,7 @@ public class BarbershopController {
 
     public static class ReservationSummary {
         private final Long bookingId;
+        private final String customerName;
         private final String title;
         private final String image;
         private final String status;
@@ -472,6 +473,7 @@ public class BarbershopController {
 
         public ReservationSummary(
                 Long bookingId,
+                String customerName,
                 String title,
                 String image,
                 String status,
@@ -479,6 +481,7 @@ public class BarbershopController {
                 double totalPrice
         ) {
             this.bookingId = bookingId;
+            this.customerName = customerName;
             this.title = title;
             this.image = image;
             this.status = status;
@@ -519,8 +522,20 @@ public class BarbershopController {
                     .findFirst()
                     .orElse(null);
 
+            String customerName = "Unknown";
+            if (booking.getUser() != null) {
+                String fName = booking.getUser().getFirstName();
+                String lName = booking.getUser().getLastName();
+                customerName = (fName != null ? fName : "") + " " + (lName != null ? lName : "");
+                customerName = customerName.trim();
+                if (customerName.isEmpty()) {
+                    customerName = booking.getUser().getEmail();
+                }
+            }
+
             return new ReservationSummary(
                     booking.getBookingId(),
+                    customerName,
                     title,
                     image,
                     booking.getStatus(),
@@ -531,6 +546,10 @@ public class BarbershopController {
 
         public Long getBookingId() {
             return bookingId;
+        }
+
+        public String getCustomerName() {
+            return customerName;
         }
 
         public String getTitle() {

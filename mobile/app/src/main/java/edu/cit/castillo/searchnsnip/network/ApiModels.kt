@@ -28,8 +28,32 @@ data class BarbershopSummary(
     val name: String,
     val description: String?,
     val address: String,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double?,
+    val longitude: Double?,
     val contactInfo: String?,
     val showcaseImages: List<String>
+)
+
+data class ServiceSummary(
+    val serviceId: Long,
+    val name: String,
+    val description: String?,
+    val price: String,
+    val duration: String,
+    val photo: String?,
+    val category: String?
+)
+
+data class CreateBookingRequest(
+    val shopId: Long,
+    val serviceIds: List<Long>,
+    val appointmentDate: String
+)
+
+data class BookingSummary(
+    val bookingId: Long,
+    val status: String,
+    val totalPrice: Double,
+    val appointmentDate: String?,
+    val serviceIds: List<Long>
 )

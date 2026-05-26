@@ -121,6 +121,16 @@
             android:textSize="13sp" />
 
         <TextView
+            android:id="@+id/textCurrentLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Locating you..."
+            android:textColor="#2E7FF7"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -130,10 +140,11 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/textSpotsAvailable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="12 spots available near you"
+            android:text="Loading spots..."
             android:textColor="#6B7280"
             android:textSize="14sp" />
 
@@ -143,65 +154,13 @@
             android:layout_marginTop="14dp"
             android:background="#E5E7EB" />
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBarbershops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="@drawable/bg_dashboard_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="10dp">
-
-            <View
-                android:layout_width="66dp"
-                android:layout_height="66dp"
-                android:background="@drawable/bg_dashboard_thumbnail" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="The Classic Cut"
-                    android:textColor="#111827"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0.8 mi • Men's Haircut, Shave"
-                    android:textColor="#6B7280"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="★ 4.9 (203 reviews)"
-                    android:textColor="#EAB308"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dashboard_chip"
-                android:paddingStart="10dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="6dp"
-                android:text="OPEN"
-                android:textColor="#1976D2"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false" />
     </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
